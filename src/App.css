@@ -1,0 +1,16 @@
+@import "tailwindcss";
+
+/* Design System */
+@theme {
+  --color-primary: #2563EB;   /* Royal Azure */
+  --color-secondary: #FF6B6B; /* Warm Coral */
+  --color-accent: #5B21B6;    /* Dark Violet */
+
+  --font-heading: "Sora", sans-serif;
+  --font-body: "Inter", sans-serif;
+}
+
+/* Base styles */
+body {
+  font-family: var(--font-body);
+}
