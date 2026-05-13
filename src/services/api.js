@@ -6,21 +6,15 @@ const API = axios.create({
 });
 
 /* ================= REQUEST INTERCEPTOR ================= */
-API.interceptors.request.use(
-  (req) => {
-    const userToken = localStorage.getItem("userToken");
-    const adminToken = localStorage.getItem("adminToken");
+API.interceptors.request.use((req) => {
+  const token = localStorage.getItem("token");
 
-    const token = userToken || adminToken;
+  if (token) {
+    req.headers.Authorization = `Bearer ${token}`;
+  }
 
-    if (token) {
-      req.headers.Authorization = `Bearer ${token}`;
-    }
-
-    return req;
-  },
-  (error) => Promise.reject(error)
-);
+  return req;
+});
 
 /* ================= RESPONSE INTERCEPTOR ================= */
 API.interceptors.response.use(
