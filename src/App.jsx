@@ -41,6 +41,7 @@ import PaymentsAdmin from "@/admin/pages/PaymentsAdmin";
 import PurchasesAdmin from "@/admin/pages/PurchasesAdmin";
 import CMSAdmin from "@/admin/pages/CMSAdmin";
 import ResourcesAdmin from "@/admin/pages/ResourcesAdmin";
+import UsersAdmin from "@/admin/pages/UsersAdmin";
 
 /* ================= GUARDS ================= */
 import ProtectedRoute from "@/auth/ProtectedRoute";
@@ -219,6 +220,17 @@ function AppContent() {
             </AdminRoute>
           }
         />
+
+        <Route
+          path="/admin/users"
+          element={
+            <AdminRoute>
+              <UsersAdmin />
+            </AdminRoute>
+          }
+        />
+
+        
 
       </Routes>
 
