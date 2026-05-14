@@ -21,12 +21,13 @@ import Checkout from "@/pages/Checkout";
 import Login from "@/auth/pages/Login";
 import Register from "@/auth/pages/Register";
 import VerifyEmail from "@/auth/pages/VerifyEmail";
+import CheckEmail from "@/auth/pages/CheckEmail"; 
 
 /* ================= USER SYSTEM ================= */
 import UserLayout from "@/layout/UserLayout";
 import UserDashboard from "@/user/pages/UserDashboard";
 import MyCourses from "@/user/pages/MyCourses";
-import MyPurchases from "@/user/pages/MyPurchases"; 
+import MyPurchases from "@/user/pages/MyPurchases";
 import Profile from "@/user/pages/Profile";
 import Settings from "@/user/components/Settings";
 
@@ -65,7 +66,6 @@ const UserRoute = ({ children }) => (
 const CheckoutGuard = () => {
   const { user } = useAuth();
 
-  // ❌ NOT LOGGED IN → FORCE REGISTER
   if (!user) {
     return <Navigate to="/register" replace />;
   }
@@ -125,6 +125,7 @@ function AppContent() {
         {/* ================= AUTH ROUTES ================= */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/check-email" element={<CheckEmail />} />
         <Route path="/verify-email/:token" element={<VerifyEmail />} />
 
         {/* ================= USER ROUTES ================= */}
@@ -138,10 +139,7 @@ function AppContent() {
         >
           <Route path="dashboard" element={<UserDashboard />} />
           <Route path="courses" element={<MyCourses />} />
-
-          {/* ================= NEW ROUTE ================= */}
           <Route path="purchases" element={<MyPurchases />} />
-
           <Route path="profile" element={<Profile />} />
           <Route path="settings" element={<Settings />} />
         </Route>
@@ -229,8 +227,6 @@ function AppContent() {
             </AdminRoute>
           }
         />
-
-        
 
       </Routes>
 

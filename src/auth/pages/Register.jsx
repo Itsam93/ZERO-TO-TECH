@@ -77,14 +77,20 @@ const Register = () => {
         fullName: form.fullName,
         email: form.email,
         password: form.password,
-        agreedToTerms: form.agreedToTerms, // ✅ FIXED: now included
+        agreedToTerms: form.agreedToTerms,
       };
 
       const res = await registerUser(payload);
 
       if (res.data.success) {
         toast.success(res.data.message);
-        navigate("/login");
+
+        /* ================= REDIRECT TO CHECK EMAIL PAGE ================= */
+        navigate("/check-email", {
+          state: {
+            email: form.email,
+          },
+        });
       }
 
     } catch (error) {
@@ -139,6 +145,7 @@ const Register = () => {
           {/* FULL NAME */}
           <div className="relative">
             <User className="absolute left-4 top-3 text-gray-400" size={18} />
+
             <input
               type="text"
               name="fullName"
@@ -152,6 +159,7 @@ const Register = () => {
           {/* EMAIL */}
           <div className="relative">
             <Mail className="absolute left-4 top-3 text-gray-400" size={18} />
+
             <input
               type="email"
               name="email"
@@ -196,9 +204,13 @@ const Register = () => {
 
             <span>
               By creating an account, you agree to our{" "}
-              <Link to="/terms" className="text-blue-600">Terms</Link>{" "}
+              <Link to="/terms" className="text-blue-600">
+                Terms
+              </Link>{" "}
               and{" "}
-              <Link to="/policies" className="text-blue-600">Policies</Link>.
+              <Link to="/policies" className="text-blue-600">
+                Policies
+              </Link>.
             </span>
           </label>
 
@@ -232,8 +244,15 @@ const Register = () => {
         }
 
         @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(25px); }
-          to { opacity: 1; transform: translateY(0); }
+          from {
+            opacity: 0;
+            transform: translateY(25px);
+          }
+
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
         }
       `}</style>
     </div>

@@ -41,14 +41,33 @@ const UsersAdmin = () => {
       await updateUser(id, { role });
 
       setUsers((prev) =>
-        prev.map((u) =>
-          u._id === id ? { ...u, role } : u
-        )
+        prev.map((u) => (u._id === id ? { ...u, role } : u))
       );
 
       toast.success("User role updated");
     } catch {
       toast.error("Update failed");
+    }
+  };
+
+  /* ================= TOGGLE ACTIVE STATUS (NEW) ================= */
+  const handleToggleActive = async (id, currentStatus) => {
+    try {
+      const newStatus = !currentStatus;
+
+      await updateUser(id, { isActive: newStatus });
+
+      setUsers((prev) =>
+        prev.map((u) =>
+          u._id === id ? { ...u, isActive: newStatus } : u
+        )
+      );
+
+      toast.success(
+        `User ${newStatus ? "activated" : "disabled"}`
+      );
+    } catch {
+      toast.error("Failed to update user status");
     }
   };
 
@@ -211,17 +230,28 @@ const UsersAdmin = () => {
                     </select>
                   </td>
 
-                  {/* STATUS */}
+                  {/* ================= STATUS ================= */}
                   <td>
-                    <span
-                      className={`px-2 py-1 rounded-full text-xs font-medium ${
-                        user.isActive
-                          ? "bg-green-100 text-green-700"
-                          : "bg-red-100 text-red-600"
-                      }`}
-                    >
-                      {user.isActive ? "Active" : "Disabled"}
-                    </span>
+                    {(() => {
+                      let label = "Active";
+                      let color = "bg-green-100 text-green-700";
+
+                      if (!user.isEmailVerified) {
+                        label = "Pending";
+                        color = "bg-yellow-100 text-yellow-800";
+                      } else if (!user.isActive) {
+                        label = "Disabled";
+                        color = "bg-red-100 text-red-600";
+                      }
+
+                      return (
+                        <span
+                          className={`px-2 py-1 rounded-full text-xs font-medium ${color}`}
+                        >
+                          {label}
+                        </span>
+                      );
+                    })()}
                   </td>
 
                   {/* ACTIONS */}
