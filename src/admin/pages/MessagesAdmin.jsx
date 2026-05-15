@@ -36,7 +36,7 @@ const MessagesAdmin = () => {
           msg._id === id ? { ...msg, isRead: true } : msg
         )
       );
-    } catch (err) {
+    } catch {
       setMessage({ type: "error", text: "Failed to mark as read" });
     }
   };
@@ -49,37 +49,48 @@ const MessagesAdmin = () => {
     if (!msg.isRead) markAsRead(msg._id);
   };
 
-  /* ================= SEND REPLY ================= */
+  /* ================= SEND REPLY (UPDATED) ================= */
   const sendReply = async () => {
     if (!selected || !replyText.trim()) return;
 
     try {
       setSendingReply(true);
 
-      await API.post("/contact/reply", {
+      const res = await API.post("/contact/reply", {
         id: selected._id,
         replyMessage: replyText,
       });
 
       setMessage({
         type: "success",
-        text: "Reply sent successfully",
+        text: res.data?.message || "Reply sent successfully",
       });
 
-      setReplyText("");
-      fetchMessages();
-
-      // update selected locally
-      setSelected((prev) => ({
-        ...prev,
+      /* ================= UPDATE LOCAL STATE IMMEDIATELY ================= */
+      const updatedMessage = {
+        ...selected,
         isReplied: true,
         replyMessage: replyText,
         repliedAt: new Date().toISOString(),
-      }));
+      };
+
+      setSelected(updatedMessage);
+
+      setMessages((prev) =>
+        prev.map((m) =>
+          m._id === selected._id ? updatedMessage : m
+        )
+      );
+
+      setReplyText("");
     } catch (err) {
+      const backendMessage =
+        err?.response?.data?.message ||
+        "Failed to send reply";
+
       setMessage({
         type: "error",
-        text: "Failed to send reply",
+        text: backendMessage,
       });
     } finally {
       setSendingReply(false);
@@ -101,8 +112,11 @@ const MessagesAdmin = () => {
         type: "success",
         text: "Message deleted",
       });
-    } catch (err) {
-      setMessage({ type: "error", text: "Delete failed" });
+    } catch {
+      setMessage({
+        type: "error",
+        text: "Delete failed",
+      });
     }
   };
 
@@ -138,49 +152,54 @@ const MessagesAdmin = () => {
           <p className="text-sm text-gray-500">Loading...</p>
         ) : (
           <div className="space-y-2">
-            {messages.map((msg) => (
-              <div
-                key={msg._id}
-                onClick={() => openMessage(msg)}
-                className={`p-3 rounded-lg cursor-pointer border transition hover:bg-gray-50 ${
-                  selected?._id === msg._id
-                    ? "border-blue-500 bg-blue-50"
-                    : msg.isRead
-                    ? "bg-gray-50"
-                    : "bg-blue-50 border-blue-200"
-                }`}
-              >
-                <div className="flex justify-between items-center">
-                  <p className="font-medium">
-                    {msg.name}
-                    {msg.isReplied && (
-                      <span className="text-xs text-green-600 ml-2">
-                        Replied
+            {messages.map((msg) => {
+              const isReplied = msg.isReplied;
+
+              return (
+                <div
+                  key={msg._id}
+                  onClick={() => openMessage(msg)}
+                  className={`p-3 rounded-lg cursor-pointer border transition hover:bg-gray-50 ${
+                    selected?._id === msg._id
+                      ? "border-blue-500 bg-blue-50"
+                      : msg.isRead
+                      ? "bg-gray-50"
+                      : "bg-blue-50 border-blue-200"
+                  }`}
+                >
+                  <div className="flex justify-between items-center">
+                    <p className="font-medium">
+                      {msg.name}
+
+                      {isReplied && (
+                        <span className="text-xs text-green-600 ml-2">
+                          Replied
+                        </span>
+                      )}
+                    </p>
+
+                    {!msg.isRead && (
+                      <span className="text-xs bg-blue-500 text-white px-2 py-0.5 rounded">
+                        New
                       </span>
                     )}
+                  </div>
+
+                  <p className="text-sm text-gray-500 truncate">
+                    {msg.message}
                   </p>
 
-                  {!msg.isRead && (
-                    <span className="text-xs bg-blue-500 text-white px-2 py-0.5 rounded">
-                      New
-                    </span>
-                  )}
+                  <p className="text-xs text-gray-400 mt-1">
+                    {new Date(msg.createdAt).toLocaleString()}
+                  </p>
                 </div>
-
-                <p className="text-sm text-gray-500 truncate">
-                  {msg.message}
-                </p>
-
-                <p className="text-xs text-gray-400 mt-1">
-                  {new Date(msg.createdAt).toLocaleString()}
-                </p>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>
 
-      {/* ================= RIGHT: THREAD VIEW ================= */}
+      {/* ================= RIGHT PANEL ================= */}
       <div className="md:col-span-2 bg-white rounded-xl shadow p-6 overflow-y-auto">
 
         {!selected ? (
@@ -189,13 +208,12 @@ const MessagesAdmin = () => {
           </div>
         ) : (
           <>
-            {/* ================= HEADER ================= */}
+            {/* HEADER */}
             <div className="flex justify-between items-start border-b pb-4 mb-4">
               <div>
                 <h3 className="text-xl font-semibold">
                   {selected.name}
                 </h3>
-
                 <p className="text-sm text-gray-500">
                   {selected.email}
                 </p>
@@ -209,7 +227,7 @@ const MessagesAdmin = () => {
               </button>
             </div>
 
-            {/* ================= ORIGINAL MESSAGE ================= */}
+            {/* ORIGINAL MESSAGE */}
             <div className="bg-gray-50 p-4 rounded-lg mb-4">
               <p className="text-sm text-gray-600 whitespace-pre-line">
                 {selected.message}
@@ -220,7 +238,7 @@ const MessagesAdmin = () => {
               </p>
             </div>
 
-            {/* ================= REPLY HISTORY ================= */}
+            {/* REPLY DISPLAY */}
             {selected.isReplied && (
               <div className="bg-green-50 border border-green-200 p-4 rounded-lg mb-4">
                 <h4 className="text-sm font-semibold text-green-700 mb-1">
@@ -240,24 +258,33 @@ const MessagesAdmin = () => {
               </div>
             )}
 
-            {/* ================= REPLY BOX ================= */}
+            {/* REPLY BOX */}
             <div className="border-t pt-4">
               <h4 className="font-semibold mb-2">Reply</h4>
 
               <textarea
                 value={replyText}
                 onChange={(e) => setReplyText(e.target.value)}
-                placeholder="Type your reply..."
+                placeholder={
+                  selected.isReplied
+                    ? "Already replied to this message"
+                    : "Type your reply..."
+                }
                 rows={5}
-                className="w-full border rounded-lg p-3 text-sm"
+                disabled={selected.isReplied}
+                className="w-full border rounded-lg p-3 text-sm disabled:bg-gray-100"
               />
 
               <button
                 onClick={sendReply}
-                disabled={sendingReply}
+                disabled={sendingReply || selected.isReplied}
                 className="mt-3 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:opacity-50"
               >
-                {sendingReply ? "Sending..." : "Send Reply"}
+                {sendingReply
+                  ? "Sending..."
+                  : selected.isReplied
+                  ? "Already Replied"
+                  : "Send Reply"}
               </button>
             </div>
           </>
