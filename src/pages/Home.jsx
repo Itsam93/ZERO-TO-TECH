@@ -1,18 +1,20 @@
 import { useEffect, useRef, useState } from "react";
+
 import Hero from "@/components/Hero";
 import Courses from "@/components/Courses";
 import Testimonials from "@/components/Testimonials";
 import CTA from "@/components/CTA";
 
+import heroImage from "@/assets/hero.png";
+
+/* ================= INTERSECTION SECTION WRAPPER ================= */
 const useInView = (threshold = 0.2) => {
   const ref = useRef(null);
   const [inView, setInView] = useState(false);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
-      ([entry]) => {
-        setInView(entry.isIntersecting);
-      },
+      ([entry]) => setInView(entry.isIntersecting),
       { threshold }
     );
 
@@ -33,12 +35,14 @@ const Section = ({ children, threshold = 0.2 }) => {
     <div
       ref={ref}
       className="
-        transition-all duration-700 ease-out
+        transition-all
+        duration-700
+        ease-out
         will-change-transform
       "
       style={{
-        opacity: inView ? 1 : 0.4,
-        transform: inView ? "translateY(0px)" : "translateY(40px)",
+        opacity: inView ? 1 : 0.35,
+        transform: inView ? "translateY(0px)" : "translateY(50px)",
       }}
     >
       {children}
@@ -48,32 +52,55 @@ const Section = ({ children, threshold = 0.2 }) => {
 
 const Home = () => {
   return (
-    <main className="pt-20 overflow-x-hidden">
+    <main className="relative overflow-hidden">
 
-      {/* ================= HERO ================= */}
-      <Hero />
+      {/* ================= FIXED BACKGROUND LAYER ================= */}
+      <div className="fixed inset-0 -z-10">
+        <img
+          src={heroImage}
+          alt="Background"
+          className="
+            w-full
+            h-full
+            object-cover
+            object-center
+            scale-[1.08]
+          "
+        />
 
-      {/* ================= COURSES ================= */}
-      <section className="mt-[-40px]">
-        <Section threshold={0.25}>
-          <Courses />
-        </Section>
-      </section>
+        {/* DARK OVERLAY FOR READABILITY */}
+        <div className="absolute inset-0 bg-black/60" />
 
-      {/* ================= TESTIMONIALS ================= */}
-      <section>
-        <Section threshold={0.25}>
-          <Testimonials />
-        </Section>
-      </section>
+        {/* SOFT VIGNETTE FOR DEPTH */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/70 to-black" />
+      </div>
 
-      {/* ================= CTA ================= */}
-      <section>
-        <Section threshold={0.3}>
-          <CTA />
-        </Section>
-      </section>
+      {/* ================= PAGE CONTENT ================= */}
+      <div className="relative z-10">
 
+        {/* HERO (now text-only overlay on background) */}
+        <Hero />
+
+        {/* SECTIONS FLOAT OVER SAME BACKGROUND */}
+        <section className="mt-[-60px]">
+          <Section threshold={0.25}>
+            <Courses />
+          </Section>
+        </section>
+
+        <section>
+          <Section threshold={0.25}>
+            <Testimonials />
+          </Section>
+        </section>
+
+        <section>
+          <Section threshold={0.3}>
+            <CTA />
+          </Section>
+        </section>
+
+      </div>
     </main>
   );
 };
