@@ -1,13 +1,20 @@
 import { useEffect, useState } from "react";
-import { motion, useScroll, useTransform } from "framer-motion";
+import {
+  motion,
+  useScroll,
+  useTransform,
+  useSpring,
+  useMotionTemplate,
+} from "framer-motion";
+
 import { useNavigate } from "react-router-dom";
 import { ArrowUpRight, Sparkles } from "lucide-react";
 
 import { useAuth } from "@/auth/AuthContext";
 import PUBLIC_API from "@/services/publicApi";
-
 import heroImage from "@/assets/hero.png";
 
+/* ================= DEFAULT ================= */
 const defaultHero = {
   title: "Build Skills That Create Income Online",
   description:
@@ -16,19 +23,61 @@ const defaultHero = {
   image: heroImage,
 };
 
+/* ================= SPLIT TEXT ================= */
+const SplitText = ({ text }) => {
+  return (
+    <span>
+      {text.split(" ").map((word, i) => (
+        <motion.span
+          key={i}
+          initial={{ opacity: 0, y: 30, filter: "blur(6px)" }}
+          animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+          transition={{
+            duration: 0.7,
+            delay: i * 0.05,
+            ease: [0.22, 1, 0.36, 1],
+          }}
+          className="inline-block mr-[0.35em]"
+        >
+          {word}
+        </motion.span>
+      ))}
+    </span>
+  );
+};
+
 const Hero = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-
   const [hero, setHero] = useState(defaultHero);
 
   const { scrollY } = useScroll();
 
-  // Scroll-driven effects (cinematic motion)
-  const imageScale = useTransform(scrollY, [0, 400], [1.05, 1.15]);
-  const textY = useTransform(scrollY, [0, 400], [0, -60]);
-  const opacity = useTransform(scrollY, [0, 300], [1, 0]);
+  /* ================= BACKGROUND ================= */
+  const bgY = useSpring(useTransform(scrollY, [0, 800], [0, 100]), {
+    stiffness: 60,
+    damping: 20,
+  });
 
+  const bgScale = useTransform(scrollY, [0, 600], [1.1, 1.22]);
+
+  /* ================= TEXT (FADE EARLY) ================= */
+  const textOpacity = useTransform(scrollY, [0, 400], [1, 0]);
+  const textY = useSpring(useTransform(scrollY, [0, 500], [0, -90]), {
+    stiffness: 80,
+    damping: 25,
+  });
+
+  const blur = useTransform(scrollY, [0, 400], [0, 6]);
+  const blurFilter = useMotionTemplate`blur(${blur}px)`;
+
+  /* ================= CTA (IMPORTANT FIX) ================= */
+  // CTA stays visible MUCH longer
+  const ctaOpacity = useTransform(scrollY, [0, 650], [1, 1]); // stays visible
+  const ctaY = useTransform(scrollY, [0, 650], [0, 0]); // NO movement
+  const ctaScale = useTransform(scrollY, [0, 650], [1, 1]); // NO shrink
+
+  /* ================= DATA ================= */
   useEffect(() => {
     let mounted = true;
 
@@ -46,170 +95,110 @@ const Hero = () => {
     };
 
     fetchHero();
-
-    return () => {
-      mounted = false;
-    };
+    return () => (mounted = false);
   }, []);
 
-  /* ================= CTA ACTIONS ================= */
-
-  const handleStartLearning = () => {
-    navigate("/register");
-  };
-
-  const handleViewCourses = () => {
-    navigate("/courses");
-  };
-
   return (
-    <section className="relative min-h-[120vh] overflow-hidden bg-black">
+    <section className="relative min-h-[120vh] flex items-center justify-center overflow-hidden bg-[#0B0F14]">
 
       {/* ================= BACKGROUND ================= */}
       <motion.div
-        style={{ scale: imageScale }}
-        className="absolute inset-0 z-0"
+        style={{ y: bgY, scale: bgScale }}
+        className="absolute inset-0"
       >
         <img
-          src={hero.image || heroImage}
-          alt="Hero"
-          className="w-full h-full object-cover object-center"
+          src={hero.image}
+          className="w-full h-full object-cover"
+          alt="hero"
         />
 
-        <div className="absolute inset-0 bg-black/55" />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/60 to-black" />
+        <div className="absolute inset-0 bg-[#0B0F14]/70" />
       </motion.div>
 
       {/* ================= CONTENT ================= */}
       <motion.div
-        style={{ opacity, y: textY }}
-        className="relative z-10 flex flex-col items-center justify-center text-center px-6 pt-40"
+        style={{
+          y: textY,
+          opacity: textOpacity,
+          filter: blurFilter,
+        }}
+        className="relative z-10 text-center px-6 max-w-6xl"
       >
 
         {/* BADGE */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="
-            inline-flex
-            items-center
-            gap-2
-            px-4
-            py-2
-            rounded-full
-            bg-white/10
-            text-white
-            text-sm
-            backdrop-blur-md
-            border
-            border-white/20
-          "
-        >
-          <Sparkles size={14} />
+        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-white/90">
+          <Sparkles size={14} className="text-red-500" />
           {hero.badge}
-        </motion.div>
+        </div>
 
-        {/* ================= MASKED HERO TEXT ================= */}
-        <div className="relative mt-10 w-full max-w-6xl">
+        {/* TEXT */}
+        <div className="mt-10 font-black leading-[0.9] tracking-[-0.06em] text-white">
 
-          <h1
-            className="
-              text-[3.5rem]
-              md:text-[6rem]
-              lg:text-[8rem]
-              font-black
-              tracking-[-0.06em]
-              leading-[0.95]
-              text-transparent
-              bg-clip-text
-              bg-cover
-              bg-center
-              mix-blend-screen
-            "
-            style={{
-              backgroundImage: `url(${hero.image || heroImage})`,
-            }}
-          >
-            Build Skills
-            <span className="block">That Create Income</span>
-            Online
+          <h1 className="text-[3.5rem] md:text-[6rem] lg:text-[8rem]">
+            <SplitText text="Build Skills" />
           </h1>
 
-          {/* FALLBACK OVERLAY TEXT */}
-          <h1
-            className="
-              absolute
-              inset-0
-              text-[3.5rem]
-              md:text-[6rem]
-              lg:text-[8rem]
-              font-black
-              tracking-[-0.06em]
-              leading-[0.95]
-              text-white/90
-              pointer-events-none
-            "
-          >
-            Build Skills
-            <span className="block text-[var(--color-primary)]">
-              That Create Income
-            </span>
-            Online
+          <h1 className="text-[3.5rem] md:text-[6rem] lg:text-[8rem] text-blue-500">
+            <SplitText text="That Create Income" />
+          </h1>
+
+          <h1 className="text-[3.5rem] md:text-[6rem] lg:text-[8rem]">
+            <SplitText text="Online" />
           </h1>
 
         </div>
 
         {/* DESCRIPTION */}
-        <p className="mt-10 text-white/80 text-lg md:text-xl max-w-2xl leading-relaxed">
+        <p className="mt-10 text-white/70 text-lg max-w-2xl mx-auto">
           {hero.description}
         </p>
+      </motion.div>
 
-        {/* ================= CTA ================= */}
-        <div className="mt-10 flex items-center gap-4 flex-wrap justify-center">
+      {/* ================= CTA (FIXED LAYER — ALWAYS CLICKABLE) ================= */}
+      <motion.div
+        style={{
+          opacity: ctaOpacity,
+          y: ctaY,
+          scale: ctaScale,
+        }}
+        className="absolute bottom-24 z-20 flex flex-wrap justify-center gap-4 px-6"
+      >
 
-          <button
-            onClick={handleStartLearning}
-            className="
-              px-8
-              py-4
-              rounded-full
-              bg-[var(--color-primary)]
-              text-white
-              font-semibold
-              shadow-xl
-              hover:scale-[1.02]
-              active:scale-[0.98]
-              transition
-              flex
-              items-center
-              gap-2
-            "
-          >
-            Start Learning
-            <ArrowUpRight size={18} />
-          </button>
+        <motion.button
+          whileHover={{ scale: 1.04 }}
+          whileTap={{ scale: 0.98 }}
+          onClick={() => navigate("/register")}
+          className="
+            px-8 py-4
+            rounded-full
+            bg-blue-600
+            text-white
+            font-semibold
+            shadow-lg shadow-blue-600/20
+          "
+        >
+          Start Learning
+        </motion.button>
 
-          <button
-            onClick={handleViewCourses}
-            className="
-              px-6
-              py-4
-              rounded-full
-              bg-white/10
-              text-white
-              border
-              border-white/20
-              backdrop-blur-md
-              hover:bg-white/20
-              transition
-            "
-          >
-            Explore Courses
-          </button>
-
-        </div>
+        <motion.button
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          onClick={() => navigate("/courses")}
+          className="
+            px-6 py-4
+            rounded-full
+            bg-white/5
+            border border-white/10
+            text-white
+            backdrop-blur-xl
+            hover:bg-white/10
+          "
+        >
+          Explore Courses
+        </motion.button>
 
       </motion.div>
+
     </section>
   );
 };

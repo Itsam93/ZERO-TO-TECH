@@ -1,13 +1,41 @@
 import { useEffect, useState, useCallback } from "react";
 import PUBLIC_API from "@/services/publicApi";
+import { motion } from "framer-motion";
 import { X } from "lucide-react";
 import { EnrollButton } from "@/components/buttons/EnrollButton";
 
+/* ================= NORMALIZER ================= */
 const normalizeCourses = (data) => {
   if (!data) return [];
   if (Array.isArray(data)) return data;
   if (Array.isArray(data.data)) return data.data;
   return [];
+};
+
+/* ================= ANIMATION ================= */
+const container = {
+  hidden: {},
+  show: {
+    transition: {
+      staggerChildren: 0.12,
+      delayChildren: 0.1,
+    },
+  },
+};
+
+const card = {
+  hidden: {
+    opacity: 0,
+    y: 40,
+  },
+  show: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.6,
+      ease: [0.22, 1, 0.36, 1],
+    },
+  },
 };
 
 const Courses = () => {
@@ -17,20 +45,17 @@ const Courses = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  /* ================= FETCH COURSES ================= */
+  /* ================= FETCH ================= */
   const fetchCourses = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
 
       const res = await PUBLIC_API.get("/courses");
-
-      const normalized = normalizeCourses(res?.data);
-      setCourses(normalized);
+      setCourses(normalizeCourses(res?.data));
     } catch (err) {
-      console.error("COURSES FETCH ERROR:", err);
-      setError("Failed to load courses. Please try again.");
-      setCourses([]);
+      console.error(err);
+      setError("Failed to load courses.");
     } finally {
       setLoading(false);
     }
@@ -40,23 +65,22 @@ const Courses = () => {
     fetchCourses();
   }, [fetchCourses]);
 
-  /* ================= LOADING ================= */
+  /* ================= STATES ================= */
   if (loading) {
     return (
-      <section className="py-24 px-6 text-center text-gray-500">
+      <section className="py-28 px-6 bg-[#F7F9FC] text-center text-gray-500">
         Loading courses...
       </section>
     );
   }
 
-  /* ================= ERROR STATE ================= */
   if (error) {
     return (
-      <section className="py-24 px-6 text-center">
-        <p className="text-red-500 mb-4">{error}</p>
+      <section className="py-28 px-6 bg-[#F7F9FC] text-center">
+        <p className="text-red-600 mb-4">{error}</p>
         <button
           onClick={fetchCourses}
-          className="px-6 py-2 bg-black text-white rounded-lg"
+          className="px-6 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition"
         >
           Retry
         </button>
@@ -64,18 +88,15 @@ const Courses = () => {
     );
   }
 
-  /* ================= SAFE LIMIT (NO CRASH) ================= */
-  const visibleCourses = Array.isArray(courses)
-    ? courses.slice(0, 3)
-    : [];
+  const visible = Array.isArray(courses) ? courses.slice(0, 3) : [];
 
   return (
-    <section id="courses" className="py-24 px-6 bg-white relative">
+    <section id="courses" className="py-28 px-6 bg-[#F7F9FC]">
 
       {/* ================= HEADER ================= */}
       <div className="text-center max-w-2xl mx-auto mb-16">
-        <h2 className="text-4xl md:text-5xl font-semibold">
-          Our <span className="text-[var(--color-primary)]">Courses</span>
+        <h2 className="text-4xl md:text-5xl font-semibold text-gray-900">
+          Our <span className="text-blue-600">Courses</span>
         </h2>
 
         <p className="mt-4 text-gray-600">
@@ -84,44 +105,68 @@ const Courses = () => {
       </div>
 
       {/* ================= GRID ================= */}
-      <div className="max-w-7xl mx-auto grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
-
-        {visibleCourses.length > 0 ? (
-          visibleCourses.map((course) => {
+      <motion.div
+        variants={container}
+        initial="hidden"
+        whileInView="show"
+        viewport={{ once: true, amount: 0.2 }}
+        className="max-w-7xl mx-auto grid gap-8 sm:grid-cols-2 lg:grid-cols-3"
+      >
+        {visible.length > 0 ? (
+          visible.map((course) => {
             const Icon = course?.icon;
 
             return (
-              <div
+              <motion.div
                 key={course?._id || course?.id}
+                variants={card}
                 onClick={() => setSelectedCourse(course)}
-                className="cursor-pointer group relative p-8 rounded-2xl border border-gray-100 bg-white shadow-sm 
-                hover:shadow-xl hover:-translate-y-2 transition duration-300 overflow-hidden"
+                className="
+                  group
+                  cursor-pointer
+                  p-8
+                  rounded-2xl
+                  bg-white
+                  border border-gray-100
+                  shadow-sm
+                  transition-all
+                  duration-300
+                  hover:-translate-y-1
+                  hover:shadow-lg
+                  hover:border-blue-200
+                "
               >
 
-                {/* HOVER GLOW */}
-                <div className="absolute inset-0 bg-[var(--color-primary)]/5 opacity-0 group-hover:opacity-100 transition" />
-
                 {/* ICON */}
-                <div className="relative z-10 w-12 h-12 flex items-center justify-center rounded-xl 
-                bg-[var(--color-primary)]/10 text-[var(--color-primary)] mb-6">
-
-                  {Icon ? <Icon size={24} /> : null}
-
+                <div className="
+                  w-12 h-12 mb-6
+                  flex items-center justify-center
+                  rounded-xl
+                  bg-blue-50
+                  text-blue-600
+                ">
+                  {Icon ? <Icon size={22} /> : null}
                 </div>
 
                 {/* TITLE */}
-                <h3 className="relative z-10 text-xl font-semibold">
+                <h3 className="text-xl font-semibold text-gray-900">
                   {course?.title || "Untitled Course"}
                 </h3>
 
                 {/* DESCRIPTION */}
-                <p className="relative z-10 mt-3 text-gray-600">
+                <p className="mt-3 text-gray-600 text-sm leading-relaxed">
                   {course?.description || "No description available."}
                 </p>
 
-                {/* HOVER LINE */}
-                <div className="absolute bottom-0 left-0 w-0 h-[3px] bg-[var(--color-primary)] group-hover:w-full transition-all duration-300" />
-              </div>
+                {/* ACCENT LINE */}
+                <div className="
+                  mt-6 h-[2px] w-0
+                  bg-blue-600
+                  group-hover:w-full
+                  transition-all duration-300
+                " />
+
+              </motion.div>
             );
           })
         ) : (
@@ -129,14 +174,21 @@ const Courses = () => {
             No courses available.
           </p>
         )}
-
-      </div>
+      </motion.div>
 
       {/* ================= CTA ================= */}
-      <div className="mt-12 text-center">
+      <div className="mt-14 text-center">
         <a
           href="/courses"
-          className="inline-block bg-[var(--color-primary)] text-white px-8 py-3 rounded-lg hover:opacity-90"
+          className="
+            inline-block
+            px-8 py-3
+            rounded-full
+            bg-blue-600
+            text-white
+            hover:bg-blue-700
+            transition
+          "
         >
           View More Courses
         </a>
@@ -145,11 +197,18 @@ const Courses = () => {
       {/* ================= MODAL ================= */}
       {selectedCourse && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm px-4"
           onClick={() => setSelectedCourse(null)}
         >
           <div
-            className="bg-white w-full max-w-lg rounded-2xl p-8 relative shadow-2xl"
+            className="
+              relative
+              w-full max-w-lg
+              bg-white
+              rounded-2xl
+              p-8
+              shadow-xl
+            "
             onClick={(e) => e.stopPropagation()}
           >
 
@@ -158,21 +217,18 @@ const Courses = () => {
               onClick={() => setSelectedCourse(null)}
               className="absolute top-4 right-4 text-gray-500 hover:text-black"
             >
-              <X size={22} />
+              <X size={20} />
             </button>
 
             {/* ICON */}
-            <div className="w-14 h-14 flex items-center justify-center rounded-xl 
-            bg-[var(--color-primary)]/10 text-[var(--color-primary)] mb-6">
-
+            <div className="w-14 h-14 mb-6 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
               {selectedCourse?.icon ? (
-                <selectedCourse.icon size={28} />
+                <selectedCourse.icon size={26} />
               ) : null}
-
             </div>
 
             {/* TITLE */}
-            <h3 className="text-2xl font-semibold">
+            <h3 className="text-2xl font-semibold text-gray-900">
               {selectedCourse?.title}
             </h3>
 
@@ -182,7 +238,7 @@ const Courses = () => {
             </p>
 
             {/* DETAILS */}
-            <div className="mt-6 space-y-2 text-sm text-gray-500">
+            <div className="mt-6 text-sm text-gray-500 space-y-2">
               <p>• Duration: {selectedCourse?.duration || "4–8 Weeks"}</p>
               <p>• Level: {selectedCourse?.level || "Beginner to Advanced"}</p>
               <p>• Certificate Included</p>
@@ -190,7 +246,7 @@ const Courses = () => {
 
             {/* CTA */}
             <div className="mt-8">
-              <EnrollButton className="w-full text-center" />
+              <EnrollButton className="w-full" />
             </div>
 
           </div>

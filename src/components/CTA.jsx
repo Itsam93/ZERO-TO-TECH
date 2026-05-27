@@ -1,97 +1,149 @@
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/auth/AuthContext";
 import toast from "react-hot-toast";
+import { motion } from "framer-motion";
 import { ViewCoursesButton } from "@/components/buttons/ViewCoursesButton";
+
+const container = {
+  hidden: {},
+  show: {
+    transition: {
+      staggerChildren: 0.12,
+      delayChildren: 0.1,
+    },
+  },
+};
+
+const item = {
+  hidden: {
+    opacity: 0,
+    y: 25,
+  },
+  show: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.6,
+      ease: [0.22, 1, 0.36, 1],
+    },
+  },
+};
 
 const CTA = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
 
-  /* ================= ENROLL HANDLER (AUTH PROTECTED) ================= */
-  const handleEnroll = () => {
-    if (!user) {
-      toast.error("Kindly register to proceed");
-      return;
-    }
-
-    navigate("/checkout", {
-      state: {
-        source: "cta",
-      },
-    });
-  };
 
   return (
-    <section className="relative py-24 px-6 overflow-hidden">
+    <section className="relative py-28 px-6 bg-[#F7F9FC] overflow-hidden">
 
-      {/* BACKGROUND GLOW */}
-      <div className="absolute inset-0 bg-gradient-to-br from-[var(--color-primary)] via-[var(--color-accent)] to-[var(--color-secondary)] opacity-10 blur-3xl"></div>
+      {/* ================= SUBTLE BACKGROUND ================= */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-[-120px] left-[-120px] w-[400px] h-[400px] bg-blue-500/10 blur-[120px] rounded-full" />
+        <div className="absolute bottom-[-140px] right-[-100px] w-[420px] h-[420px] bg-red-500/10 blur-[140px] rounded-full" />
+      </div>
 
-      {/* CONTENT */}
-      <div className="relative max-w-5xl mx-auto text-center">
+      {/* ================= CONTENT ================= */}
+      <motion.div
+        variants={container}
+        initial="hidden"
+        whileInView="show"
+        viewport={{ once: true, amount: 0.3 }}
+        className="relative max-w-5xl mx-auto text-center"
+      >
 
         {/* BADGE */}
-        <div className="inline-flex items-center gap-2 mb-6 px-5 py-2 rounded-full 
-                        bg-white/40 backdrop-blur-md border border-white/30 
-                        text-[var(--color-primary)] text-sm font-medium shadow-sm">
+        <motion.div
+          variants={item}
+          className="
+            inline-flex
+            items-center
+            gap-2
+            mb-6
+            px-4 py-2
+            rounded-full
+            bg-white
+            border border-gray-200
+            text-blue-600
+            text-sm
+            shadow-sm
+          "
+        >
           Start Your Digital Journey Today
-        </div>
+        </motion.div>
 
         {/* HEADING */}
-        <h2 className="font-[var(--font-heading)] text-4xl md:text-5xl font-semibold leading-tight">
+        <motion.h2
+          variants={item}
+          className="text-4xl md:text-5xl font-semibold text-gray-900 leading-tight"
+        >
           Ready to Build a{" "}
-          <span className="text-[var(--color-primary)]">
+          <span className="text-blue-600">
             High-Income Skill?
           </span>
-        </h2>
+        </motion.h2>
 
         {/* SUBTEXT */}
-        <p className="mt-6 text-lg text-gray-600 max-w-2xl mx-auto font-[var(--font-body)]">
+        <motion.p
+          variants={item}
+          className="mt-6 text-lg text-gray-600 max-w-2xl mx-auto"
+        >
           Join hundreds of students learning practical ICT skills that lead to freelancing,
           remote jobs, and business opportunities.
-        </p>
+        </motion.p>
 
         {/* BUTTONS */}
-        <div className="mt-10 flex flex-col sm:flex-row justify-center gap-5">
+        <motion.div
+          variants={item}
+          className="mt-10 flex flex-col sm:flex-row justify-center gap-5"
+        >
 
-          {/* ================= ENROLL BUTTON (PROTECTED) ================= */}
-          <button
-            onClick={handleEnroll}
+          {/* PRIMARY CTA */}
+          <motion.button
+            whileHover={{ scale: 1.03 }}
+            whileTap={{ scale: 0.97 }}
+            onClick={() => navigate("/register")}
             className="
-              relative px-10 py-3 text-base font-medium text-white
-              bg-blue-500
-              rounded-xl shadow-lg
-              transition-all duration-300
-              hover:shadow-2xl hover:-translate-y-1 hover:scale-[1.03]
-              active:scale-95
-              before:absolute before:inset-0 before:rounded-xl
-              before:bg-white/10 before:opacity-0 hover:before:opacity-100
-              overflow-hidden
+              px-10 py-3
+              rounded-xl
+              bg-blue-600
+              text-white
+              font-medium
+              shadow-md
+              hover:shadow-lg
+              transition
             "
           >
             Enroll Now
-          </button>
+          </motion.button>
 
-          {/* ================= VIEW COURSES ================= */}
-          <div className="transform transition duration-300 hover:scale-[1.03] hover:-translate-y-1">
-            <ViewCoursesButton className="
-              px-10 py-3 text-base
-              bg-white/80 backdrop-blur-md
-              border border-gray-200
-              rounded-xl
-              shadow-sm hover:shadow-md
-              transition
-            " />
+          {/* SECONDARY CTA */}
+          <div className="transition-transform duration-300 hover:-translate-y-1">
+            <ViewCoursesButton
+              className="
+                px-10 py-3
+                rounded-xl
+                bg-white
+                border border-gray-200
+                text-gray-700
+                shadow-sm
+                hover:shadow-md
+                transition
+              "
+            />
           </div>
 
-        </div>
+        </motion.div>
 
         {/* TRUST LINE */}
-        <p className="mt-10 text-sm text-gray-500">
+        <motion.p
+          variants={item}
+          className="mt-10 text-sm text-gray-500"
+        >
           No experience required • Beginner friendly • Certificate included
-        </p>
+        </motion.p>
 
-      </div>
+      </motion.div>
     </section>
   );
 };
