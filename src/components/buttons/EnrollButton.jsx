@@ -1,6 +1,5 @@
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/auth/AuthContext";
-import toast from "react-hot-toast";
 
 export const EnrollButton = ({
   course = null,
@@ -8,11 +7,18 @@ export const EnrollButton = ({
   amount = null,
   className = "",
   onIntercept = null, 
+  onClick = null, 
+  ...props
 }) => {
   const navigate = useNavigate();
   const { user } = useAuth();
 
   const handleClick = (e) => {
+    if (onClick) {
+      onClick(e);
+      return;
+    }
+
     const payload = {
       course,
       resource,
@@ -33,6 +39,7 @@ export const EnrollButton = ({
 
   return (
     <button
+      type="button"
       onClick={handleClick}
       className={`
         bg-[var(--color-secondary)]
@@ -41,6 +48,7 @@ export const EnrollButton = ({
         shadow-md hover:shadow-lg
         ${className}
       `}
+      {...props}
     >
       Enroll Now
     </button>
