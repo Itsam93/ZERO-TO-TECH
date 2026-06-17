@@ -14,7 +14,7 @@ import { useAuth } from "@/auth/AuthContext";
 import API from "@/services/api";
 import PUBLIC_API from "@/services/publicApi";
 
-import {RegistrationModal} from "@/components/RegistrationModal"; 
+import { RegistrationModal } from "@/components/RegistrationModal"; 
 
 const Resources = () => {
   const { token } = useAuth();
@@ -87,7 +87,7 @@ const Resources = () => {
     } catch (err) {
       console.error("RESOURCE FETCH ERROR:", err);
       setError("Failed to load resources");
-      toast.error("Unable to load resources");
+      toast.error("Unable to load resources. Please try again later.");
     } finally {
       setLoading(false);
     }
@@ -185,17 +185,22 @@ const Resources = () => {
       const paymentUrl = res?.data?.data?.authorization_url;
 
       if (!paymentUrl) {
-        toast.error("Unable to initialize payment");
+        toast.error("Payment initialization gateway unavailable.");
         return;
       }
 
-      toast.success("Redirecting to payment...");
+      toast.success("Redirecting to secure gateway...");
       window.location.href = paymentUrl;
     } catch (err) {
-      console.error("PAYMENT INIT ERROR:", err?.response?.data || err);
-      toast.error(
-        err?.response?.data?.message || "Payment initialization failed"
-      );
+      // Keep structural logging local in the console for your debugging tasks
+      console.error("PAYMENT INTERCEPT RUNTIME LOG ERROR:", err?.response?.data || err);
+      
+      // SANITIZATION: Never pass raw backend exception parameters straight to client window toasts
+      if (err?.response?.status === 401 || err?.response?.status === 403) {
+        toast.error("Session missing or expired. Please sign in again.");
+      } else {
+        toast.error("Unable to process purchase request. Please try again or check your account connectivity.");
+      }
     } finally {
       setLoadingId(null);
     }
@@ -211,7 +216,7 @@ const Resources = () => {
 
       const allowed = hasAccess(resource._id);
       if (!allowed) {
-        toast.error("Purchase this resource first");
+        toast.error("Access restricted. Kindly purchase this learning asset to unlock.");
         return;
       }
 
@@ -222,7 +227,7 @@ const Resources = () => {
       const secureResource = res?.data?.data || null;
 
       if (!secureResource) {
-        toast.error("Resource unavailable");
+        toast.error("This resource material is currently unmounted.");
         return;
       }
 
@@ -230,16 +235,14 @@ const Resources = () => {
       setShowViewer(true);
       saveRecent(resource._id);
     } catch (err) {
-      console.error("OPEN RESOURCE ERROR:", err?.response?.data || err);
+      console.error("OPEN RESOURCE RUNTIME ERROR LOG:", err?.response?.data || err);
 
       if (err?.response?.status === 403) {
-        toast.error("Access denied. Purchase required.");
+        toast.error("Access denied. Verified purchase record is required.");
         return;
       }
 
-      toast.error(
-        err?.response?.data?.message || "Unable to open resource"
-      );
+      toast.error("Unable to mount learning asset viewport. Please refresh your workspace.");
     }
   };
 
