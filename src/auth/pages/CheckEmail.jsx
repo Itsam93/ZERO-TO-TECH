@@ -17,6 +17,7 @@ const CheckEmail = () => {
 
   const [loading, setLoading] = useState(false);
 
+  /* ================= RESEND EMAIL ================= */
   const handleResend = async () => {
     if (!email) {
       toast.error("No email address found");
@@ -57,6 +58,7 @@ const CheckEmail = () => {
       "
     >
 
+      {/* BACKGROUND GLOW */}
       <div className="absolute top-[-120px] right-[-120px] w-[300px] h-[300px] bg-blue-500/10 blur-3xl rounded-full" />
 
       <div className="absolute bottom-[-140px] left-[-140px] w-[320px] h-[320px] bg-cyan-400/10 blur-3xl rounded-full" />
