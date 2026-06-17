@@ -14,6 +14,8 @@ import { useAuth } from "@/auth/AuthContext";
 import API from "@/services/api";
 import PUBLIC_API from "@/services/publicApi";
 
+import {RegistrationModal} from "@/components/RegistrationModal"; 
+
 const Resources = () => {
   const { token } = useAuth();
 
@@ -25,6 +27,9 @@ const Resources = () => {
   const [showViewer, setShowViewer] = useState(false);
   const [recentIds, setRecentIds] = useState([]);
   const [error, setError] = useState(null);
+
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [pendingResource, setPendingResource] = useState(null);
 
   const normalizeId = (value) => {
     if (!value) return null;
@@ -117,6 +122,15 @@ const Resources = () => {
   }, [fetchEntitlements]);
 
   useEffect(() => {
+    if (token && pendingResource) {
+      const resourceToBuy = pendingResource;
+      setPendingResource(null);
+      setIsAuthModalOpen(false);
+      handleBuy(resourceToBuy);
+    }
+  }, [token, pendingResource]);
+
+  useEffect(() => {
     if (!token) return;
 
     const interval = setInterval(() => {
@@ -151,7 +165,8 @@ const Resources = () => {
 
   const handleBuy = async (resource) => {
     if (!token) {
-      toast.error("Please login first");
+      setPendingResource(resource);
+      setIsAuthModalOpen(true);
       return;
     }
 
@@ -189,7 +204,8 @@ const Resources = () => {
   const openResource = async (resource) => {
     try {
       if (!token) {
-        toast.error("Please login first");
+        setPendingResource(resource);
+        setIsAuthModalOpen(true);
         return;
       }
 
@@ -245,6 +261,7 @@ const Resources = () => {
             Something went wrong while capturing asset parameters. Please refresh or try again.
           </p>
           <button
+            type="button"
             onClick={fetchResources}
             className="mt-6 px-6 py-3 rounded-xl bg-slate-950 text-white hover:bg-slate-800 font-medium text-sm transition"
           >
@@ -315,6 +332,7 @@ const Resources = () => {
                 <div className="flex gap-4 overflow-x-auto pb-2">
                   {recentResources.map((item) => (
                     <button
+                      type="button"
                       key={item._id}
                       onClick={() => openResource(item)}
                       className="min-w-[220px] text-left border border-slate-200 rounded-xl p-4 bg-slate-50 hover:bg-slate-100 transition shadow-sm"
@@ -351,18 +369,18 @@ const Resources = () => {
                     <motion.div
                       key={item._id}
                       whileHover={{ y: -6 }}
-                      className="group relative rounded-2xl border border-slate-200 bg-white overflow-hidden shadow-sm hover:shadow-xl hover:border-slate-300 transition-all duration-300 flex flex-col justify-between"
+                      className={`group relative rounded-2xl border overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between ${
+                        isOwned 
+                          ? "bg-white border-slate-200 hover:border-slate-300" 
+                          : "bg-slate-50/[0.60] border-slate-200/80 hover:border-slate-300"
+                      }`}
                     >
-                      {!isOwned && (
-                        <div className="absolute inset-0 z-10 bg-slate-900/[0.02] backdrop-blur-[1px] flex items-center justify-center rounded-2xl pointer-events-none" />
-                      )}
-
                       <div className="p-6 flex-1 flex flex-col justify-between">
                         <div>
-                          <div className="w-14 h-14 rounded-xl bg-slate-50 text-slate-800 border border-slate-100 flex items-center justify-center mb-5 group-hover:bg-slate-950 group-hover:text-white transition-colors duration-300 relative">
+                          <div className="w-14 h-14 rounded-xl bg-white text-slate-800 border border-slate-100 flex items-center justify-center mb-5 group-hover:bg-slate-950 group-hover:text-white transition-colors duration-300 relative shadow-sm">
                             <Icon size={24} />
                             {!isOwned && (
-                              <div className="absolute -top-1.5 -right-1.5 bg-white shadow-md border border-slate-100 text-slate-700 rounded-full p-1 transform scale-90">
+                              <div className="absolute -top-1.5 -right-1.5 bg-white shadow-md border border-slate-100 text-slate-600 rounded-full p-1 transform scale-90">
                                 <Lock size={12} />
                               </div>
                             )}
@@ -377,7 +395,7 @@ const Resources = () => {
                           </p>
                         </div>
 
-                        <div className="mt-6">
+                        <div className="mt-6 relative z-20">
                           <div className="mb-4">
                             <p className="text-2xl font-black text-slate-900 tracking-tight">
                               ₦{Number(item?.price || 0).toLocaleString()}
@@ -386,17 +404,19 @@ const Resources = () => {
 
                           {isOwned ? (
                             <button
+                              type="button"
                               onClick={() => openResource(item)}
-                              className="w-full bg-emerald-600 hover:bg-emerald-700 active:scale-[0.98] text-white py-3 rounded-xl flex items-center justify-center gap-2 font-semibold text-sm transition-all shadow-sm shadow-emerald-600/10"
+                              className="w-full bg-emerald-600 hover:bg-emerald-700 active:scale-[0.98] text-white py-3 rounded-xl flex items-center justify-center gap-2 font-semibold text-sm transition-all shadow-sm shadow-emerald-600/10 cursor-pointer"
                             >
                               <Play size={15} fill="currentColor" />
                               Open Resource
                             </button>
                           ) : (
                             <button
+                              type="button"
                               onClick={() => handleBuy(item)}
                               disabled={isProcessing}
-                              className="relative z-20 w-full bg-slate-950 hover:bg-slate-800 active:scale-[0.98] disabled:opacity-60 text-white py-3 rounded-xl flex items-center justify-center gap-2 font-semibold text-sm transition-all cursor-pointer shadow-sm"
+                              className="w-full bg-slate-950 hover:bg-slate-800 active:scale-[0.98] disabled:opacity-60 text-white py-3 rounded-xl flex items-center justify-center gap-2 font-semibold text-sm transition-all cursor-pointer shadow-sm"
                             >
                               {isProcessing ? (
                                 <span className="flex items-center gap-2">
@@ -448,6 +468,7 @@ const Resources = () => {
                 </div>
 
                 <button
+                  type="button"
                   onClick={closeViewer}
                   className="p-2 rounded-xl text-slate-400 hover:text-slate-600 hover:bg-slate-50 transition"
                   aria-label="Close configuration window"
@@ -465,6 +486,14 @@ const Resources = () => {
           </motion.div>
         )}
       </AnimatePresence>
+
+      <RegistrationModal 
+        isOpen={isAuthModalOpen} 
+        onClose={() => {
+          setIsAuthModalOpen(false);
+          setPendingResource(null); 
+        }} 
+      />
     </main>
   );
 };
