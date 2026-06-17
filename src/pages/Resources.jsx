@@ -15,6 +15,7 @@ import API from "@/services/api";
 import PUBLIC_API from "@/services/publicApi";
 
 import { RegistrationModal } from "@/components/RegistrationModal"; 
+import PaymentModal from "@/components/PaymentModal";
 
 const Resources = () => {
   const { token } = useAuth();
@@ -22,7 +23,6 @@ const Resources = () => {
   const [resources, setResources] = useState([]);
   const [entitlements, setEntitlements] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [loadingId, setLoadingId] = useState(null);
   const [selectedResource, setSelectedResource] = useState(null);
   const [showViewer, setShowViewer] = useState(false);
   const [recentIds, setRecentIds] = useState([]);
@@ -30,6 +30,9 @@ const Resources = () => {
 
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [pendingResource, setPendingResource] = useState(null);
+
+  const [isPayModalOpen, setIsPayModalOpen] = useState(false);
+  const [activeResourceForPay, setActiveResourceForPay] = useState(null);
 
   const normalizeId = (value) => {
     if (!value) return null;
@@ -163,47 +166,15 @@ const Resources = () => {
     return resources.filter((resource) => recentIds.includes(resource._id));
   }, [resources, recentIds]);
 
-  const handleBuy = async (resource) => {
+  const handleBuy = (resource) => {
     if (!token) {
       setPendingResource(resource);
       setIsAuthModalOpen(true);
       return;
     }
 
-    try {
-      setLoadingId(resource._id);
-
-      const payload = {
-        productType: "Resource",
-        productId: resource._id,
-      };
-
-      console.log("INIT PAYMENT:", payload);
-      const res = await API.post(`/resources/pay/${resource._id}`);
-      console.log("PAYMENT INIT RESPONSE:", res?.data);
-
-      const paymentUrl = res?.data?.data?.authorization_url;
-
-      if (!paymentUrl) {
-        toast.error("Payment initialization gateway unavailable.");
-        return;
-      }
-
-      toast.success("Redirecting to secure gateway...");
-      window.location.href = paymentUrl;
-    } catch (err) {
-      // Keep structural logging local in the console for your debugging tasks
-      console.error("PAYMENT INTERCEPT RUNTIME LOG ERROR:", err?.response?.data || err);
-      
-      // SANITIZATION: Never pass raw backend exception parameters straight to client window toasts
-      if (err?.response?.status === 401 || err?.response?.status === 403) {
-        toast.error("Session missing or expired. Please sign in again.");
-      } else {
-        toast.error("Unable to process purchase request. Please try again or check your account connectivity.");
-      }
-    } finally {
-      setLoadingId(null);
-    }
+    setActiveResourceForPay(resource);
+    setIsPayModalOpen(true);
   };
 
   const openResource = async (resource) => {
@@ -366,7 +337,6 @@ const Resources = () => {
                 {resources.map((item) => {
                   const Icon = getIcon(item?.type);
                   const isOwned = hasAccess(item._id);
-                  const isProcessing = loadingId === item._id;
 
                   return (
                     <motion.div
@@ -418,20 +388,10 @@ const Resources = () => {
                             <button
                               type="button"
                               onClick={() => handleBuy(item)}
-                              disabled={isProcessing}
-                              className="w-full bg-slate-950 hover:bg-slate-800 active:scale-[0.98] disabled:opacity-60 text-white py-3 rounded-xl flex items-center justify-center gap-2 font-semibold text-sm transition-all cursor-pointer shadow-sm"
+                              className="w-full bg-slate-950 hover:bg-slate-800 active:scale-[0.98] text-white py-3 rounded-xl flex items-center justify-center gap-2 font-semibold text-sm transition-all cursor-pointer shadow-sm"
                             >
-                              {isProcessing ? (
-                                <span className="flex items-center gap-2">
-                                  <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                                  Processing...
-                                </span>
-                              ) : (
-                                <>
-                                  <ShoppingCart size={15} />
-                                  Buy Resource
-                                </>
-                              )}
+                              <ShoppingCart size={15} />
+                              Buy Resource
                             </button>
                           )}
                         </div>
@@ -445,6 +405,7 @@ const Resources = () => {
         )}
       </div>
 
+      {/* SECURE ENCRYPTED VIEWING PORTAL CONTAINER */}
       <AnimatePresence>
         {showViewer && selectedResource && (
           <motion.div
@@ -490,6 +451,7 @@ const Resources = () => {
         )}
       </AnimatePresence>
 
+      {/* SYSTEM AUTH CHECKPOINT MODAL BOUNDARY */}
       <RegistrationModal 
         isOpen={isAuthModalOpen} 
         onClose={() => {
@@ -497,6 +459,21 @@ const Resources = () => {
           setPendingResource(null); 
         }} 
       />
+
+      <AnimatePresence>
+        {isPayModalOpen && activeResourceForPay && (
+          <PaymentModal
+            itemType="resource"
+            itemId={activeResourceForPay._id}
+            title={activeResourceForPay.title}
+            amount={activeResourceForPay.price}
+            onClose={() => {
+              setIsPayModalOpen(false);
+              setActiveResourceForPay(null);
+            }}
+          />
+        )}
+      </AnimatePresence>
     </main>
   );
 };

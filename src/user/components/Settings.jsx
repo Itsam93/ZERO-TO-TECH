@@ -1,51 +1,23 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import toast from "react-hot-toast";
-import { useAuth } from "@/auth/AuthContext";
-import { User, Mail, Lock, Save } from "lucide-react";
-import { getUserProfile, updateUserProfile, changePassword } from "@/services/userApi";
+import { 
+  Lock, 
+  KeyRound, 
+  Loader2, 
+  Settings as SettingsIcon, 
+  ShieldAlert 
+} from "lucide-react";
+import { motion } from "framer-motion";
+import { changePassword } from "@/services/userApi";
 
 const Settings = () => {
-  const { user } = useAuth();
-
-  const [loading, setLoading] = useState(false);
   const [passwordLoading, setPasswordLoading] = useState(false);
-
-  const [profile, setProfile] = useState({
-    fullName: "",
-    email: "",
-  });
 
   const [passwords, setPasswords] = useState({
     currentPassword: "",
     newPassword: "",
     confirmPassword: "",
   });
-
-  useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        const res = await getUserProfile();
-        const data = res.data.data;
-
-        setProfile({
-          fullName: data.fullName || "",
-          email: data.email || "",
-        });
-
-      } catch (error) {
-        toast.error("Failed to load profile");
-      }
-    };
-
-    fetchProfile();
-  }, []);
-
-  const handleProfileChange = (e) => {
-    setProfile({
-      ...profile,
-      [e.target.name]: e.target.value,
-    });
-  };
 
   const handlePasswordChange = (e) => {
     setPasswords({
@@ -54,193 +26,146 @@ const Settings = () => {
     });
   };
 
-  const handleProfileUpdate = async (e) => {
-    e.preventDefault();
-
-    if (!profile.fullName.trim() || !profile.email.trim()) {
-      toast.error("All fields are required");
-      return;
-    }
-
-    try {
-      setLoading(true);
-
-      const res = await updateUserProfile(profile);
-
-      if (res.data.success) {
-        toast.success("Profile updated successfully");
-      }
-
-    } catch (error) {
-      toast.error(
-        error?.response?.data?.message || "Failed to update profile"
-      );
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const handlePasswordUpdate = async (e) => {
     e.preventDefault();
 
     if (!passwords.currentPassword || !passwords.newPassword) {
-      toast.error("All password fields are required");
+      toast.error("All structural verification inputs required");
       return;
     }
 
     if (passwords.newPassword.length < 6) {
-      toast.error("New password must be at least 6 characters");
+      toast.error("Target security passphrase must be ≥ 6 characters");
       return;
     }
 
     if (passwords.newPassword !== passwords.confirmPassword) {
-      toast.error("Passwords do not match");
+      toast.error("Passphrase matching constraint failed");
       return;
     }
 
     try {
       setPasswordLoading(true);
-
       const res = await changePassword({
         currentPassword: passwords.currentPassword,
         newPassword: passwords.newPassword,
       });
 
       if (res.data.success) {
-        toast.success("Password updated successfully");
-
+        toast.success("Security keys successfully re-mapped");
         setPasswords({
           currentPassword: "",
           newPassword: "",
           confirmPassword: "",
         });
       }
-
     } catch (error) {
-      toast.error(
-        error?.response?.data?.message || "Password update failed"
-      );
+      toast.error(error?.response?.data?.message || "Credential change operation dropped");
     } finally {
       setPasswordLoading(false);
     }
   };
 
   return (
-    <div className="p-6 space-y-8">
-
-      {/* ================= HEADER ================= */}
-      <div>
-        <h1 className="text-2xl font-bold text-gray-800">
-          Settings
+    <motion.main 
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4 }}
+      className="max-w-4xl mx-auto px-6 py-12 space-y-10 min-h-screen"
+    >
+      
+      {/* ================= GLOBAL SECTION HEADER ================= */}
+      <div className="border-b border-slate-100 pb-6">
+        <h1 className="text-3xl font-black text-slate-900 tracking-tight flex items-center gap-2.5">
+          Security Settings <SettingsIcon size={22} className="text-slate-400 spin-slow" />
         </h1>
-        <p className="text-gray-500 text-sm">
-          Manage your account settings and security
+        <p className="text-slate-500 text-sm font-medium mt-1.5">
+          Configure security authorization credentials and cryptographic entry keys.
         </p>
       </div>
 
-      {/* ================= PROFILE SECTION ================= */}
-      <div className="bg-white p-6 rounded-xl shadow-sm border">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="space-y-1.5">
+          <h2 className="text-base font-bold text-slate-900 tracking-tight">
+            Security Gateways
+          </h2>
+          <p className="text-xs text-slate-400 font-medium leading-relaxed">
+            Change or Update your Current Password. Ensure a complex array structure is implemented to protect your account.
+          </p>
+        </div>
 
-        <h2 className="text-lg font-semibold mb-4">
-          Profile Information
-        </h2>
+        <div className="md:col-span-2 bg-white rounded-2xl border border-slate-200/70 shadow-sm p-6 sm:p-8">
+          <form onSubmit={handlePasswordUpdate} className="space-y-5">
+            
+            {/* CURRENT PASSWORD */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Current Password</label>
+              <div className="relative">
+                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={16} />
+                <input
+                  type="password"
+                  name="currentPassword"
+                  value={passwords.currentPassword}
+                  onChange={handlePasswordChange}
+                  placeholder="••••••••••••"
+                  disabled={passwordLoading}
+                  className="w-full pl-11 pr-4 py-3 border border-slate-200 rounded-xl text-sm font-semibold bg-slate-50/30 outline-none focus:ring-4 focus:ring-blue-50 focus:border-blue-500 transition disabled:opacity-60"
+                />
+              </div>
+            </div>
 
-        <form onSubmit={handleProfileUpdate} className="space-y-4">
+            <div className="grid sm:grid-cols-2 gap-4">
+              {/* NEW PASSWORD */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">New Password</label>
+                <div className="relative">
+                  <KeyRound className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={16} />
+                  <input
+                    type="password"
+                    name="newPassword"
+                    value={passwords.newPassword}
+                    onChange={handlePasswordChange}
+                    placeholder="Enter New Password"
+                    disabled={passwordLoading}
+                    className="w-full pl-11 pr-4 py-3 border border-slate-200 rounded-xl text-sm font-semibold bg-slate-50/30 outline-none focus:ring-4 focus:ring-blue-50 focus:border-blue-500 transition disabled:opacity-60"
+                  />
+                </div>
+              </div>
 
-          {/* FULL NAME */}
-          <div className="relative">
-            <User className="absolute left-3 top-3 text-gray-400" size={18} />
+              {/* CONFIRM PASSWORD */}
+              <div className="space-y-1.5">
+                <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Confirm New Password</label>
+                <div className="relative">
+                  <KeyRound className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={16} />
+                  <input
+                    type="password"
+                    name="confirmPassword"
+                    value={passwords.confirmPassword}
+                    onChange={handlePasswordChange}
+                    placeholder="Re-enter New Password"
+                    disabled={passwordLoading}
+                    className="w-full pl-11 pr-4 py-3 border border-slate-200 rounded-xl text-sm font-semibold bg-slate-50/30 outline-none focus:ring-4 focus:ring-blue-50 focus:border-blue-500 transition disabled:opacity-60"
+                  />
+                </div>
+              </div>
+            </div>
 
-            <input
-              type="text"
-              name="fullName"
-              value={profile.fullName}
-              onChange={handleProfileChange}
-              placeholder="Full Name"
-              className="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
+            <div className="flex justify-end pt-3">
+              <button
+                type="submit"
+                disabled={passwordLoading}
+                className="w-full sm:w-auto flex items-center justify-center gap-2 bg-rose-600 hover:bg-rose-700 text-white px-5 py-2.5 rounded-xl text-xs font-bold shadow-sm transition active:scale-[0.99] disabled:opacity-50 cursor-pointer shadow-rose-600/10"
+              >
+                {passwordLoading ? <Loader2 size={14} className="animate-spin" /> : <ShieldAlert size={14} />}
+                {passwordLoading ? "Encrypting..." : "Update New Password"}
+              </button>
+            </div>
 
-          {/* EMAIL */}
-          <div className="relative">
-            <Mail className="absolute left-3 top-3 text-gray-400" size={18} />
-
-            <input
-              type="email"
-              name="email"
-              value={profile.email}
-              onChange={handleProfileChange}
-              placeholder="Email"
-              className="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-
-          <button
-            type="submit"
-            disabled={loading}
-            className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50"
-          >
-            <Save size={16} />
-            {loading ? "Saving..." : "Save Changes"}
-          </button>
-
-        </form>
+          </form>
+        </div>
       </div>
 
-      <div className="bg-white p-6 rounded-xl shadow-sm border">
-
-        <h2 className="text-lg font-semibold mb-4">
-          Change Password
-        </h2>
-
-        <form onSubmit={handlePasswordUpdate} className="space-y-4">
-
-          {/* CURRENT PASSWORD */}
-          <div className="relative">
-            <Lock className="absolute left-3 top-3 text-gray-400" size={18} />
-
-            <input
-              type="password"
-              name="currentPassword"
-              value={passwords.currentPassword}
-              onChange={handlePasswordChange}
-              placeholder="Current Password"
-              className="w-full pl-10 pr-4 py-2 border rounded-lg"
-            />
-          </div>
-
-          {/* NEW PASSWORD */}
-          <input
-            type="password"
-            name="newPassword"
-            value={passwords.newPassword}
-            onChange={handlePasswordChange}
-            placeholder="New Password"
-            className="w-full px-4 py-2 border rounded-lg"
-          />
-
-          {/* CONFIRM PASSWORD */}
-          <input
-            type="password"
-            name="confirmPassword"
-            value={passwords.confirmPassword}
-            onChange={handlePasswordChange}
-            placeholder="Confirm New Password"
-            className="w-full px-4 py-2 border rounded-lg"
-          />
-
-          <button
-            type="submit"
-            disabled={passwordLoading}
-            className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 disabled:opacity-50"
-          >
-            {passwordLoading ? "Updating..." : "Update Password"}
-          </button>
-
-        </form>
-      </div>
-
-    </div>
+    </motion.main>
   );
 };
 

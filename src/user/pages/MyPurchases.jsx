@@ -37,7 +37,12 @@ const MyPurchases = () => {
       });
 
       if (res.data.success) {
-        setTransactions(res.data.data || []);
+        const allTransactions = res.data.data || [];
+        const successfulPurchases = allTransactions.filter(
+          (item) => item?.status === "paid"
+        );
+        
+        setTransactions(successfulPurchases);
       }
     } catch (err) {
       console.error(err);
@@ -94,11 +99,6 @@ const MyPurchases = () => {
   };
 
   const handleAccess = (item) => {
-    if (item.status !== "paid") {
-      toast.error("Payment not completed yet");
-      return;
-    }
-
     if (item.productType === "course") {
       navigate(`/user/courses/${item.productId}`);
       return;
@@ -140,7 +140,7 @@ const MyPurchases = () => {
         <div className="flex gap-2">
           <button
             onClick={() => setView("grid")}
-            className={`px-3 py-2 rounded-lg border flex items-center gap-2 ${
+            className={`px-3 py-2 rounded-lg border flex items-center gap-2 cursor-pointer ${
               view === "grid" ? "bg-black text-white" : "bg-white"
             }`}
           >
@@ -150,7 +150,7 @@ const MyPurchases = () => {
 
           <button
             onClick={() => setView("table")}
-            className={`px-3 py-2 rounded-lg border flex items-center gap-2 ${
+            className={`px-3 py-2 rounded-lg border flex items-center gap-2 cursor-pointer ${
               view === "table" ? "bg-black text-white" : "bg-white"
             }`}
           >
@@ -167,10 +167,10 @@ const MyPurchases = () => {
         </div>
       )}
 
-      {/* EMPTY */}
+      {/* EMPTY STATE */}
       {!loading && filtered.length === 0 && (
         <div className="text-center text-gray-500 py-20">
-          No purchases found 🚀
+          No confirmed purchases found 🚀
         </div>
       )}
 
@@ -179,7 +179,6 @@ const MyPurchases = () => {
         <div className="max-w-5xl mx-auto grid md:grid-cols-2 gap-6">
           {paginated.map((item) => {
             const Icon = getIcon(item.productType);
-            const isPaid = item.status === "paid";
 
             return (
               <motion.div
@@ -204,17 +203,12 @@ const MyPurchases = () => {
                 </div>
 
                 <p className="text-lg font-semibold mb-3">
-                  ₦{item.amount}
+                  ₦{item.amount.toLocaleString()}
                 </p>
 
                 <button
                   onClick={() => handleAccess(item)}
-                  disabled={!isPaid}
-                  className={`w-full flex items-center justify-center gap-2 py-2 rounded-xl text-white transition ${
-                    isPaid
-                      ? "bg-[var(--color-secondary)] hover:opacity-90"
-                      : "bg-gray-300 cursor-not-allowed"
-                  }`}
+                  className="w-full flex items-center justify-center gap-2 py-2 rounded-xl text-white bg-[var(--color-secondary)] hover:opacity-90 transition cursor-pointer"
                 >
                   {item.productType === "resource" ? (
                     <>
@@ -248,10 +242,15 @@ const MyPurchases = () => {
             <tbody>
               {paginated.map((item) => (
                 <tr key={item._id} className="border-t">
-                  <td className="p-3">{getProductName(item)}</td>
-                  <td className="p-3 capitalize">{item.productType}</td>
-                  <td className="p-3">₦{item.amount}</td>
-                  <td className="p-3 capitalize">{item.status}</td>
+                  <td className="p-3 font-medium">{getProductName(item)}</td>
+                  <td className="p-3 capitalize text-gray-600">{item.productType}</td>
+                  <td className="p-3">₦{item.amount.toLocaleString()}</td>
+                  <td className="p-3">
+                    {/* Clean green status pill since all items here are successfully paid */}
+                    <span className="px-2 py-1 text-xs font-medium rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 capitalize">
+                      {item.status}
+                    </span>
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -266,8 +265,8 @@ const MyPurchases = () => {
             <button
               key={i}
               onClick={() => setPage(i + 1)}
-              className={`px-3 py-1 rounded border ${
-                page === i + 1 ? "bg-black text-white" : "bg-white"
+              className={`px-3 py-1 rounded border transition cursor-pointer ${
+                page === i + 1 ? "bg-black text-white border-black" : "bg-white hover:bg-gray-50"
               }`}
             >
               {i + 1}
