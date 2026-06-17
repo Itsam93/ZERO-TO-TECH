@@ -7,24 +7,25 @@ export const EnrollButton = ({
   resource = null,
   amount = null,
   className = "",
+  onIntercept = null, 
 }) => {
   const navigate = useNavigate();
   const { user } = useAuth();
 
-  const handleClick = () => {
+  const handleClick = (e) => {
     const payload = {
       course,
       resource,
       amount,
     };
 
-    /* ================= NOT LOGGED IN ================= */
     if (!user) {
-      toast.error("Kindly register to proceed");
-      return; // 🚫 HARD BLOCK (no navigation)
+      if (onIntercept) {
+        onIntercept(e);
+      } 
+      return; 
     }
 
-    /* ================= LOGGED IN ================= */
     navigate("/checkout", {
       state: payload,
     });

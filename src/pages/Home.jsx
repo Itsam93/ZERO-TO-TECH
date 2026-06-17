@@ -23,10 +23,7 @@ const Home = () => {
       "
     >
 
-      {/* ================= GLOBAL CINEMATIC BACKGROUND ================= */}
       <div className="fixed inset-0 -z-10 overflow-hidden">
-
-        {/* MAIN IMAGE */}
         <motion.img
           src={heroImage}
           alt="Background"
@@ -48,7 +45,6 @@ const Home = () => {
         {/* DARK OVERLAY */}
         <div className="absolute inset-0 bg-black/65" />
 
-        {/* CINEMATIC GRADIENT */}
         <div
           className="
             absolute
@@ -60,7 +56,6 @@ const Home = () => {
           "
         />
 
-        {/* SOFT RADIAL LIGHT */}
         <div
           className="
             absolute
@@ -70,7 +65,6 @@ const Home = () => {
           "
         />
 
-        {/* SUBTLE DEPTH NOISE */}
         <div
           className="
             absolute
@@ -82,7 +76,6 @@ const Home = () => {
         />
       </div>
 
-      {/* ================= CONTENT LAYER ================= */}
       <div className="relative z-10">
 
         {/* HERO */}

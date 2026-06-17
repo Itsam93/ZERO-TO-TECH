@@ -24,14 +24,11 @@ const MyPurchases = () => {
   const [page, setPage] = useState(1);
 
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, token } = useAuth(); 
 
-  /* ================= FETCH PURCHASES ================= */
   const fetchPurchases = async () => {
     try {
       setLoading(true);
-
-      const token = localStorage.getItem("token");
 
       const res = await PUBLIC_API.get("/transactions/my", {
         headers: {
@@ -58,27 +55,24 @@ const MyPurchases = () => {
   };
 
   useEffect(() => {
-    if (!user) {
+    if (!user || !token) {
       toast.error("Please login to view purchases");
       navigate("/login");
       return;
     }
 
     fetchPurchases();
-  }, [user]);
+  }, [user, token]);
 
-  /* ================= SAFE PRODUCT NAME RESOLUTION ================= */
   const getProductName = (item) => {
     const product = item?.productId;
 
     if (!product) return item.productType;
-
     if (typeof product === "string") return "Loading item...";
 
     return product.title || product.name || item.productType;
   };
 
-  /* ================= FILTER ================= */
   const filtered = useMemo(() => {
     return transactions.filter((t) => {
       const name = getProductName(t).toLowerCase();
@@ -86,7 +80,6 @@ const MyPurchases = () => {
     });
   }, [search, transactions]);
 
-  /* ================= PAGINATION ================= */
   const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
 
   const paginated = useMemo(() => {
@@ -94,14 +87,12 @@ const MyPurchases = () => {
     return filtered.slice(start, start + ITEMS_PER_PAGE);
   }, [filtered, page]);
 
-  /* ================= ICON ================= */
   const getIcon = (type) => {
     if (type === "course") return BookOpen;
     if (type === "resource") return FileText;
     return Video;
   };
 
-  /* ================= ACCESS (IN-APP ONLY) ================= */
   const handleAccess = (item) => {
     if (item.status !== "paid") {
       toast.error("Payment not completed yet");
@@ -114,16 +105,13 @@ const MyPurchases = () => {
     }
 
     if (item.productType === "resource") {
-      // 🔴 NO DOWNLOADS — force in-app viewing
       navigate(`/user/resources/${item.productId}`);
       return;
     }
   };
 
-  /* ================= UI ================= */
   return (
     <div className="min-h-screen px-6 py-20 bg-gray-50">
-
       {/* HEADER */}
       <div className="max-w-5xl mx-auto mb-8 text-center">
         <h1 className="text-4xl font-semibold">
@@ -136,7 +124,6 @@ const MyPurchases = () => {
 
       {/* CONTROLS */}
       <div className="max-w-5xl mx-auto flex flex-col md:flex-row gap-3 justify-between mb-6">
-
         <div className="flex items-center gap-2 bg-white px-3 py-2 rounded-xl border w-full md:w-1/2">
           <Search size={16} />
           <input

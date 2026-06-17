@@ -10,20 +10,17 @@ const Settings = () => {
   const [loading, setLoading] = useState(false);
   const [passwordLoading, setPasswordLoading] = useState(false);
 
-  /* ================= PROFILE STATE ================= */
   const [profile, setProfile] = useState({
     fullName: "",
     email: "",
   });
 
-  /* ================= PASSWORD STATE ================= */
   const [passwords, setPasswords] = useState({
     currentPassword: "",
     newPassword: "",
     confirmPassword: "",
   });
 
-  /* ================= LOAD USER ================= */
   useEffect(() => {
     const fetchProfile = async () => {
       try {
@@ -43,7 +40,6 @@ const Settings = () => {
     fetchProfile();
   }, []);
 
-  /* ================= HANDLE PROFILE INPUT ================= */
   const handleProfileChange = (e) => {
     setProfile({
       ...profile,
@@ -51,7 +47,6 @@ const Settings = () => {
     });
   };
 
-  /* ================= HANDLE PASSWORD INPUT ================= */
   const handlePasswordChange = (e) => {
     setPasswords({
       ...passwords,
@@ -59,7 +54,6 @@ const Settings = () => {
     });
   };
 
-  /* ================= UPDATE PROFILE ================= */
   const handleProfileUpdate = async (e) => {
     e.preventDefault();
 
@@ -86,7 +80,6 @@ const Settings = () => {
     }
   };
 
-  /* ================= CHANGE PASSWORD ================= */
   const handlePasswordUpdate = async (e) => {
     e.preventDefault();
 
@@ -194,7 +187,6 @@ const Settings = () => {
         </form>
       </div>
 
-      {/* ================= PASSWORD SECTION ================= */}
       <div className="bg-white p-6 rounded-xl shadow-sm border">
 
         <h2 className="text-lg font-semibold mb-4">

@@ -2,7 +2,6 @@ import { Link, useLocation } from "react-router-dom";
 import { useState } from "react";
 import { useAuth } from "../auth/AuthContext";
 
-/* ICONS */
 import {
   LayoutDashboard,
   BookOpen,
@@ -22,20 +21,18 @@ const AdminLayout = ({ children }) => {
 
   const [collapsed, setCollapsed] = useState(false);
 
-  /* ================= NAV CONFIG ================= */
   const navItems = [
     { name: "Dashboard", path: "/admin/dashboard", icon: LayoutDashboard },
     { name: "Courses", path: "/admin/courses", icon: BookOpen },
     { name: "Resources", path: "/admin/resources", icon: Folder },
     { name: "Messages", path: "/admin/messages", icon: Mail },
-    { name: "Users", path: "/admin/users", icon: Users }, // 🔥 added user management
+    { name: "Users", path: "/admin/users", icon: Users }, 
     { name: "Enrollments", path: "/admin/enrollments", icon: Users },
     { name: "Payments", path: "/admin/payments", icon: CreditCard },
     { name: "Purchases", path: "/admin/purchases", icon: ShoppingBag },
     { name: "CMS", path: "/admin/cms", icon: Settings },
   ];
 
-  /* ================= ACTIVE ROUTE ================= */
   const isActiveRoute = (path) => {
     return location.pathname === path ||
       location.pathname.startsWith(path + "/");
@@ -44,7 +41,6 @@ const AdminLayout = ({ children }) => {
   return (
     <div className="flex min-h-screen bg-gray-50">
 
-      {/* ================= SIDEBAR ================= */}
       <aside
         className={`
           bg-gray-900 text-white
@@ -137,7 +133,6 @@ const AdminLayout = ({ children }) => {
 
       </aside>
 
-      {/* ================= MAIN CONTENT ================= */}
       <main className="flex-1 p-6 md:p-8 overflow-y-auto">
         {children}
       </main>

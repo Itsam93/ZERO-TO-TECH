@@ -10,7 +10,6 @@ const Profile = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  /* ================= FETCH PROFILE ================= */
   const fetchProfile = async () => {
     try {
       setLoading(true);
@@ -38,7 +37,6 @@ const Profile = () => {
     }
   }, [token]);
 
-  /* ================= LOADING ================= */
   if (loading) {
     return (
       <div className="min-h-[60vh] flex items-center justify-center">
@@ -49,7 +47,6 @@ const Profile = () => {
     );
   }
 
-  /* ================= ERROR ================= */
   if (error) {
     return (
       <div className="min-h-[60vh] flex items-center justify-center text-red-500">
@@ -58,7 +55,6 @@ const Profile = () => {
     );
   }
 
-  /* ================= MAIN UI ================= */
   return (
     <div className="max-w-4xl mx-auto px-4 py-10">
 

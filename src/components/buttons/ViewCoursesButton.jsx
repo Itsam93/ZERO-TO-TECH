@@ -1,6 +1,5 @@
 import { Link } from "react-router-dom";
 
-/* ---------------- VIEW COURSES BUTTON ---------------- */
 export const ViewCoursesButton = ({ className = "" }) => {
   return (
     <Link to="/courses">

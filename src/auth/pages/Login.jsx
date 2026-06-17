@@ -24,7 +24,6 @@ const Login = () => {
   const [resending, setResending] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
-  /* ================= HANDLE INPUT ================= */
   const handleChange = (e) => {
     setForm({
       ...form,
@@ -32,7 +31,6 @@ const Login = () => {
     });
   };
 
-  /* ================= VALIDATION ================= */
   const validate = () => {
     if (!form.email.trim()) {
       toast.error("Email is required");
@@ -47,7 +45,6 @@ const Login = () => {
     return true;
   };
 
-  /* ================= RESEND VERIFICATION ================= */
   const handleResendVerification = async () => {
     if (!form.email.trim()) {
       toast.error("Enter your email first");
@@ -77,7 +74,6 @@ const Login = () => {
     }
   };
 
-  /* ================= SUBMIT LOGIN ================= */
   const handleSubmit = async (e) => {
     e.preventDefault();
 

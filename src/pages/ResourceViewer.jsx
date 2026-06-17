@@ -14,7 +14,6 @@ const ResourceViewer = () => {
 
   const startTimeRef = useRef(null);
 
-  /* ================= FETCH RESOURCE ================= */
   const fetchResource = async () => {
     try {
       const res = await PUBLIC_API.get(`/resources/view/${id}`, {
@@ -38,7 +37,6 @@ const ResourceViewer = () => {
     }
   };
 
-  /* ================= TRACK VIEW START ================= */
   useEffect(() => {
     if (!user?.token || !id) return;
 
@@ -47,7 +45,6 @@ const ResourceViewer = () => {
     fetchResource();
   }, [id, user]);
 
-  /* ================= TRACK VIEW END (ANALYTICS) ================= */
   useEffect(() => {
     return () => {
       if (!user?.token || !resource) return;
@@ -71,12 +68,10 @@ const ResourceViewer = () => {
     };
   }, [resource, id, user]);
 
-  /* ================= AUTH CHECK ================= */
   if (!user) {
     return <Navigate to="/login" replace />;
   }
 
-  /* ================= LOADING ================= */
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -85,7 +80,6 @@ const ResourceViewer = () => {
     );
   }
 
-  /* ================= ACCESS DENIED ================= */
   if (!resource) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center px-6 text-center">
@@ -103,7 +97,6 @@ const ResourceViewer = () => {
     );
   }
 
-  /* ================= MARK COMPLETION ================= */
   const markCompleted = async () => {
     try {
       await PUBLIC_API.post(
@@ -122,7 +115,6 @@ const ResourceViewer = () => {
     }
   };
 
-  /* ================= RENDER RESOURCE ================= */
   return (
     <main className="min-h-screen bg-gray-50 pt-24 px-4 pb-12">
 

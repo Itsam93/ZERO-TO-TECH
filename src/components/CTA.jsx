@@ -37,13 +37,11 @@ const CTA = () => {
   return (
     <section className="relative py-28 px-6 bg-[#F7F9FC] overflow-hidden">
 
-      {/* ================= SUBTLE BACKGROUND ================= */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-[-120px] left-[-120px] w-[400px] h-[400px] bg-blue-500/10 blur-[120px] rounded-full" />
         <div className="absolute bottom-[-140px] right-[-100px] w-[420px] h-[420px] bg-red-500/10 blur-[140px] rounded-full" />
       </div>
 
-      {/* ================= CONTENT ================= */}
       <motion.div
         variants={container}
         initial="hidden"
@@ -135,7 +133,6 @@ const CTA = () => {
 
         </motion.div>
 
-        {/* TRUST LINE */}
         <motion.p
           variants={item}
           className="mt-10 text-sm text-gray-500"

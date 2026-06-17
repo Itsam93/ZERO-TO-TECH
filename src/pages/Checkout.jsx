@@ -13,7 +13,6 @@ const Checkout = () => {
 
   const [loading, setLoading] = useState(false);
 
-  /* ================= FETCH COURSES ================= */
   useEffect(() => {
     const fetchCourses = async () => {
       try {
@@ -26,7 +25,6 @@ const Checkout = () => {
 
     fetchCourses();
 
-    /* ================= LOAD SAVED EMAIL ================= */
     const savedEmail = localStorage.getItem("userEmail");
 
     if (savedEmail) {
@@ -41,7 +39,6 @@ const Checkout = () => {
     (c) => c._id === selectedCourseId
   );
 
-  /* ================= VALIDATION ================= */
   const isFormValid =
     selectedCourseId &&
     selectedCourse &&
@@ -49,7 +46,6 @@ const Checkout = () => {
     form.email.trim() &&
     form.phone.trim();
 
-  /* ================= HANDLE PAYMENT ================= */
   const handlePay = async () => {
     try {
       if (!isFormValid) return;
@@ -69,10 +65,8 @@ const Checkout = () => {
         return;
       }
 
-      /* ================= SAVE EMAIL ================= */
       localStorage.setItem("userEmail", form.email);
 
-      /* ================= REDIRECT ================= */
       window.location.href = url;
 
     } catch (err) {
@@ -103,7 +97,7 @@ const Checkout = () => {
       {/* MAIN GRID */}
       <div className="max-w-6xl mx-auto grid lg:grid-cols-3 gap-8">
 
-        {/* ================= LEFT ================= */}
+        {/* LEFT COLUMN */}
         <div className="lg:col-span-2 space-y-6">
 
           {/* COURSE SELECT */}
@@ -181,7 +175,7 @@ const Checkout = () => {
           </div>
         </div>
 
-        {/* ================= RIGHT SUMMARY ================= */}
+        {/* RIGHT COLUMN */}
         <div className="lg:col-span-1">
           <div className="sticky top-24">
 

@@ -5,7 +5,6 @@ const API = axios.create({
   withCredentials: true,
 });
 
-/* ================= REQUEST INTERCEPTOR ================= */
 API.interceptors.request.use(
   (req) => {
     const userToken = localStorage.getItem("userToken");
@@ -22,7 +21,6 @@ API.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-/* ================= RESPONSE INTERCEPTOR ================= */
 API.interceptors.response.use(
   (response) => response,
   (error) => {

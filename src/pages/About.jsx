@@ -1,7 +1,6 @@
 import { motion } from "framer-motion";
 import { useLocation } from "react-router-dom";
 
-/* ================= PAGE TRANSITION WRAPPER ================= */
 const pageVariants = {
   initial: {
     opacity: 0,
@@ -52,7 +51,6 @@ const About = () => {
       className="pt-24"
     >
 
-      {/* ================= HERO ================= */}
       <section className="px-6 py-20 bg-gray-50">
         <motion.div
           variants={sectionVariant}
@@ -72,7 +70,6 @@ const About = () => {
         </motion.div>
       </section>
 
-      {/* ================= MISSION & VISION ================= */}
       <section className="px-6 py-20">
         <div className="max-w-7xl mx-auto grid md:grid-cols-2 gap-12">
 
@@ -107,7 +104,6 @@ const About = () => {
         </div>
       </section>
 
-      {/* ================= OFFER ================= */}
       <section className="px-6 py-20 bg-gray-50">
         <div className="max-w-6xl mx-auto text-center">
 
@@ -156,7 +152,6 @@ const About = () => {
         </div>
       </section>
 
-      {/* ================= CTA ================= */}
       <section className="px-6 py-20 text-center">
         <motion.div variants={sectionVariant}>
 

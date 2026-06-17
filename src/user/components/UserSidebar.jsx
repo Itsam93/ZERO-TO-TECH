@@ -23,7 +23,6 @@ const UserSidebar = () => {
     { name: "Dashboard", path: "/user/dashboard", icon: LayoutDashboard },
     { name: "My Courses", path: "/user/courses", icon: BookOpen },
 
-    // ================= NEW ITEM =================
     { name: "My Purchases", path: "/user/purchases", icon: ShoppingBag },
 
     { name: "My Profile", path: "/user/profile", icon: User },
@@ -45,7 +44,6 @@ const UserSidebar = () => {
       `}
     >
 
-      {/* ================= TOP ================= */}
       <div>
 
         {/* BRAND */}
@@ -121,7 +119,6 @@ const UserSidebar = () => {
         </nav>
       </div>
 
-      {/* ================= BOTTOM ================= */}
       <div className="p-3 border-t space-y-2">
 
         <button

@@ -3,7 +3,6 @@ import PUBLIC_API from "@/services/publicApi";
 import { motion } from "framer-motion";
 import { Star } from "lucide-react";
 
-/* ================= NORMALIZER ================= */
 const normalizeTestimonials = (data) => {
   if (!data) return [];
   if (Array.isArray(data)) return data;
@@ -12,7 +11,6 @@ const normalizeTestimonials = (data) => {
   return [];
 };
 
-/* ================= ANIMATION ================= */
 const container = {
   hidden: {},
   show: {
@@ -38,12 +36,11 @@ const card = {
   },
 };
 
-const Testimonials = () => {
+const Testimonials = ({ fallback }) => {
   const [testimonials, setTestimonials] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  /* ================= FETCH ================= */
   const fetchTestimonials = useCallback(async () => {
     try {
       setLoading(true);
@@ -66,74 +63,76 @@ const Testimonials = () => {
     fetchTestimonials();
   }, [fetchTestimonials]);
 
-  /* ================= LOADING ================= */
   if (loading) {
-    return (
-      <section className="py-28 px-6 bg-[#F7F9FC] text-center text-gray-500">
-        Loading testimonials...
+    return fallback ? (
+      fallback
+    ) : (
+      <section className="py-32 px-4 sm:px-6 lg:px-8 text-center text-slate-400 bg-transparent animate-pulse">
+        <div className="max-w-3xl mx-auto space-y-4">
+          <div className="h-8 w-64 bg-white/5 rounded-lg mx-auto" />
+          <div className="h-4 w-80 bg-white/5 rounded-md mx-auto" />
+        </div>
       </section>
     );
   }
 
-  /* ================= ERROR ================= */
   if (error) {
     return (
-      <section className="py-28 px-6 bg-[#F7F9FC] text-center">
-        <p className="text-red-600 mb-4">{error}</p>
-
+      <section className="py-32 px-4 sm:px-6 lg:px-8 bg-transparent text-center">
+        <p className="text-red-400 font-medium mb-4">{error}</p>
         <button
           onClick={fetchTestimonials}
           className="
-            px-6 py-2
-            rounded-full
-            bg-blue-600
-            text-white
-            hover:bg-blue-700
-            transition
+            px-6 py-2.5
+            rounded-xl
+            bg-red-600/20
+            border border-red-500/30
+            text-red-200
+            hover:bg-red-600/30
+            transition-all duration-200
           "
         >
-          Retry
+          Retry Loading
         </button>
       </section>
     );
   }
 
-  const safeTestimonials = Array.isArray(testimonials)
-    ? testimonials
-    : [];
+  const safeTestimonials = Array.isArray(testimonials) ? testimonials : [];
 
   return (
-    <section className="py-28 px-6 bg-[#F7F9FC]">
+    <section id="testimonials" className="py-32 px-4 sm:px-6 lg:px-8 bg-gray-950 text-white relative z-10 overflow-hidden">
+      
+      <div className="absolute inset-0 -z-10 pointer-events-none">
+        {/* Soft, blurred branded ambiance */}
+        <div className="absolute inset-0 bg-gradient-to-br from-[var(--color-primary)]/10 via-transparent to-[var(--color-secondary)]/10 blur-3xl" />
+        {/* Top-down crisp radial light flare */}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.05),transparent_60%)]" />
+      </div>
 
-      {/* ================= HEADER ================= */}
       <motion.div
         initial={{ opacity: 0, y: 25 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, amount: 0.3 }}
         transition={{ duration: 0.7 }}
-        className="text-center max-w-2xl mx-auto mb-16"
+        className="text-center max-w-3xl mx-auto mb-20"
       >
-        <h2 className="text-4xl md:text-5xl font-semibold text-gray-900">
-          What Our{" "}
-          <span className="text-blue-600">
-            Students Say
-          </span>
+        <h2 className="text-4xl md:text-5xl lg:text-6xl font-black tracking-tight text-white">
+          What Our <span className="text-[var(--color-primary)]">Students Say</span>
         </h2>
 
-        <p className="mt-4 text-gray-600">
-          Real feedback from students who transformed their digital skills.
+        <p className="mt-4 text-base sm:text-lg text-slate-400 max-w-xl mx-auto leading-relaxed">
+          Real feedback from independent professionals who scaled their target skillsets.
         </p>
       </motion.div>
 
-      {/* ================= GRID ================= */}
       <motion.div
         variants={container}
         initial="hidden"
         whileInView="show"
-        viewport={{ once: true, amount: 0.2 }}
-        className="max-w-7xl mx-auto grid gap-8 md:grid-cols-2 lg:grid-cols-3"
+        viewport={{ once: true, amount: 0.15 }}
+        className="max-w-7xl mx-auto grid gap-8 grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
       >
-
         {safeTestimonials.length > 0 ? (
           safeTestimonials.map((t) => (
             <motion.div
@@ -141,54 +140,50 @@ const Testimonials = () => {
               variants={card}
               className="
                 relative
-                bg-white
+                bg-white/[0.005]
+                border border-white/5
+                backdrop-blur-md
                 p-8
                 rounded-2xl
-                border border-gray-100
-                shadow-sm
                 transition-all
                 duration-300
-                hover:-translate-y-1
-                hover:shadow-lg
-                hover:border-blue-100
+                hover:-translate-y-1.5
+                hover:bg-white/[0.03]
+                hover:border-white/10
+                hover:shadow-2xl hover:shadow-[var(--color-primary)]/5
               "
             >
+              <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-[var(--color-primary)]/20 to-transparent" />
 
-              {/* ACCENT TOP LINE */}
-              <div className="absolute top-0 left-0 w-full h-[2px] bg-blue-600/10" />
-
-              {/* STARS */}
-              <div className="flex gap-1 text-blue-600 mb-4">
+              {/* RATING STARS */}
+              <div className="flex gap-1 text-[var(--color-primary)]/90 mb-5">
                 {Array.from({ length: 5 }).map((_, i) => (
-                  <Star key={i} size={16} fill="currentColor" />
+                  <Star key={i} size={15} fill="currentColor" />
                 ))}
               </div>
 
-              {/* MESSAGE */}
-              <p className="text-gray-600 italic leading-relaxed">
+              <p className="text-slate-200 italic text-sm sm:text-base leading-relaxed min-h-[80px]">
                 "{t?.message || "No message provided"}"
               </p>
 
-              {/* DIVIDER */}
-              <div className="my-6 h-px bg-gray-100" />
+              <div className="my-6 h-px bg-white/5" />
 
-              {/* USER */}
-              <h4 className="font-semibold text-gray-900">
-                {t?.name || "Anonymous"}
-              </h4>
-
-              <p className="text-sm text-gray-500">
-                {t?.role || "Student"}
-              </p>
+              <div>
+                <h4 className="font-bold text-white text-base">
+                  {t?.name || "Anonymous"}
+                </h4>
+                <p className="text-xs text-slate-500 mt-0.5 font-medium">
+                  {t?.role || "Student"}
+                </p>
+              </div>
 
             </motion.div>
           ))
         ) : (
-          <p className="col-span-full text-center text-gray-500">
-            No testimonials available.
+          <p className="col-span-full text-center text-slate-500 border border-dashed border-white/5 rounded-2xl py-12">
+            No testimonials verified yet.
           </p>
         )}
-
       </motion.div>
 
     </section>

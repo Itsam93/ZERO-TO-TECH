@@ -24,7 +24,6 @@ const Register = () => {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
-  /* ================= HANDLE INPUT ================= */
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
 
@@ -34,7 +33,6 @@ const Register = () => {
     }));
   };
 
-  /* ================= VALIDATION ================= */
   const validateForm = () => {
     if (!form.fullName.trim()) {
       toast.error("Full name is required");
@@ -64,7 +62,6 @@ const Register = () => {
     return true;
   };
 
-  /* ================= SUBMIT ================= */
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -85,7 +82,6 @@ const Register = () => {
       if (res.data.success) {
         toast.success(res.data.message);
 
-        /* ================= REDIRECT TO CHECK EMAIL PAGE ================= */
         navigate("/check-email", {
           state: {
             email: form.email,
@@ -114,7 +110,6 @@ const Register = () => {
       "
     >
 
-      {/* BACKGROUND GLOW */}
       <div className="absolute top-[-120px] right-[-120px] w-[300px] h-[300px] bg-blue-500/10 blur-3xl rounded-full" />
       <div className="absolute bottom-[-140px] left-[-140px] w-[320px] h-[320px] bg-cyan-400/10 blur-3xl rounded-full" />
 

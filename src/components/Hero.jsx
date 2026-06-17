@@ -4,7 +4,6 @@ import {
   useScroll,
   useTransform,
   useSpring,
-  useMotionTemplate,
 } from "framer-motion";
 
 import { useNavigate } from "react-router-dom";
@@ -12,9 +11,8 @@ import { ArrowUpRight, Sparkles } from "lucide-react";
 
 import { useAuth } from "@/auth/AuthContext";
 import PUBLIC_API from "@/services/publicApi";
-import heroImage from "@/assets/hero.png";
+import heroImage from "@/assets/hero.webp";
 
-/* ================= DEFAULT ================= */
 const defaultHero = {
   title: "Build Skills That Create Income Online",
   description:
@@ -23,21 +21,21 @@ const defaultHero = {
   image: heroImage,
 };
 
-/* ================= SPLIT TEXT ================= */
 const SplitText = ({ text }) => {
+  if (!text) return null;
   return (
-    <span>
+    <span className="inline-flex flex-wrap justify-center text-center">
       {text.split(" ").map((word, i) => (
         <motion.span
           key={i}
-          initial={{ opacity: 0, y: 30, filter: "blur(6px)" }}
+          initial={{ opacity: 0, y: 50, filter: "blur(10px)" }}
           animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
           transition={{
-            duration: 0.7,
+            duration: 0.9,
             delay: i * 0.05,
-            ease: [0.22, 1, 0.36, 1],
+            ease: [0.16, 1, 0.3, 1], 
           }}
-          className="inline-block mr-[0.35em]"
+          className="inline-block mr-[0.3em] pb-2"
         >
           {word}
         </motion.span>
@@ -53,31 +51,18 @@ const Hero = () => {
 
   const { scrollY } = useScroll();
 
-  /* ================= BACKGROUND ================= */
-  const bgY = useSpring(useTransform(scrollY, [0, 800], [0, 100]), {
-    stiffness: 60,
-    damping: 20,
-  });
-
-  const bgScale = useTransform(scrollY, [0, 600], [1.1, 1.22]);
-
-  /* ================= TEXT (FADE EARLY) ================= */
-  const textOpacity = useTransform(scrollY, [0, 400], [1, 0]);
-  const textY = useSpring(useTransform(scrollY, [0, 500], [0, -90]), {
+  const bgY = useSpring(useTransform(scrollY, [0, 800], [0, 80]), {
     stiffness: 80,
     damping: 25,
   });
+  const bgScale = useTransform(scrollY, [0, 800], [1, 1.12]);
 
-  const blur = useTransform(scrollY, [0, 400], [0, 6]);
-  const blurFilter = useMotionTemplate`blur(${blur}px)`;
+  const contentY = useSpring(useTransform(scrollY, [0, 500], [0, -60]), {
+    stiffness: 90,
+    damping: 25,
+  });
+  const contentOpacity = useTransform(scrollY, [0, 500], [1, 0]);
 
-  /* ================= CTA (IMPORTANT FIX) ================= */
-  // CTA stays visible MUCH longer
-  const ctaOpacity = useTransform(scrollY, [0, 650], [1, 1]); // stays visible
-  const ctaY = useTransform(scrollY, [0, 650], [0, 0]); // NO movement
-  const ctaScale = useTransform(scrollY, [0, 650], [1, 1]); // NO shrink
-
-  /* ================= DATA ================= */
   useEffect(() => {
     let mounted = true;
 
@@ -90,115 +75,81 @@ const Hero = () => {
           setHero({ ...defaultHero, ...data[0] });
         }
       } catch (err) {
-        console.error(err);
+        console.error("Hero content failed to load from CMS:", err);
       }
     };
 
     fetchHero();
-    return () => (mounted = false);
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   return (
-    <section className="relative min-h-[120vh] flex items-center justify-center overflow-hidden bg-[#0B0F14]">
-
-      {/* ================= BACKGROUND ================= */}
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-[#05070a] px-4 sm:px-6 lg:px-8 py-32">
+      
       <motion.div
         style={{ y: bgY, scale: bgScale }}
-        className="absolute inset-0"
+        className="absolute inset-0 z-0 select-none pointer-events-none"
       >
         <img
           src={hero.image}
-          className="w-full h-full object-cover"
-          alt="hero"
+          alt="Premium background workplace"
+          className="h-full w-full object-cover object-center"
+          loading="eager"
+          decoding="async"
         />
-
-        <div className="absolute inset-0 bg-[#0B0F14]/70" />
+        <div className="absolute inset-0 bg-[#05070a]/65 backdrop-blur-[2px]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#05070a]/90 via-[#05070a]/40 to-[#05070a]" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#05070a]/50 via-transparent to-[#05070a]/50" />
       </motion.div>
 
-      {/* ================= CONTENT ================= */}
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -z-0 h-[500px] w-full max-w-[700px] rounded-full bg-blue-500/10 blur-[130px] pointer-events-none" />
+
       <motion.div
-        style={{
-          y: textY,
-          opacity: textOpacity,
-          filter: blurFilter,
-        }}
-        className="relative z-10 text-center px-6 max-w-6xl"
+        style={{ y: contentY, opacity: contentOpacity }}
+        className="relative z-10 w-full max-w-5xl mx-auto flex flex-col items-center text-center"
       >
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/[0.03] border border-white/10 text-xs sm:text-sm font-medium backdrop-blur-md shadow-2xl mb-8"
+        >
+          <Sparkles size={14} className="text-blue-400 animate-pulse" />
+          <span className="tracking-wide text-slate-200">{hero.badge}</span>
+        </motion.div>
 
-        {/* BADGE */}
-        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-white/90">
-          <Sparkles size={14} className="text-red-500" />
-          {hero.badge}
-        </div>
+        <h1 className="text-[2.5rem] sm:text-[4rem] md:text-[5.5rem] lg:text-[6.5rem] font-black tracking-tight text-white leading-[1.05] max-w-4xl">
+          <SplitText text={hero.title} />
+        </h1>
 
-        {/* TEXT */}
-        <div className="mt-10 font-black leading-[0.9] tracking-[-0.06em] text-white">
-
-          <h1 className="text-[3.5rem] md:text-[6rem] lg:text-[8rem]">
-            <SplitText text="Build Skills" />
-          </h1>
-
-          <h1 className="text-[3.5rem] md:text-[6rem] lg:text-[8rem] text-blue-500">
-            <SplitText text="That Create Income" />
-          </h1>
-
-          <h1 className="text-[3.5rem] md:text-[6rem] lg:text-[8rem]">
-            <SplitText text="Online" />
-          </h1>
-
-        </div>
-
-        {/* DESCRIPTION */}
-        <p className="mt-10 text-white/70 text-lg max-w-2xl mx-auto">
+        <p className="mt-8 text-base sm:text-lg md:text-xl text-slate-300 max-w-3xl font-normal leading-relaxed text-center drop-shadow-sm">
           {hero.description}
         </p>
-      </motion.div>
 
-      {/* ================= CTA (FIXED LAYER — ALWAYS CLICKABLE) ================= */}
-      <motion.div
-        style={{
-          opacity: ctaOpacity,
-          y: ctaY,
-          scale: ctaScale,
-        }}
-        className="absolute bottom-24 z-20 flex flex-wrap justify-center gap-4 px-6"
-      >
+        <div className="mt-12 flex flex-col sm:flex-row gap-4 w-full sm:w-auto justify-center items-center">
+          <motion.button
+            whileHover={{ scale: 1.04, y: -2 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={() => navigate("/register")}
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl bg-blue-600 text-white font-semibold shadow-xl shadow-blue-600/20 hover:bg-blue-500 transition-colors duration-200"
+          >
+            Start Learning
+            <ArrowUpRight size={18} />
+          </motion.button>
 
-        <motion.button
-          whileHover={{ scale: 1.04 }}
-          whileTap={{ scale: 0.98 }}
-          onClick={() => navigate("/register")}
-          className="
-            px-8 py-4
-            rounded-full
-            bg-blue-600
-            text-white
-            font-semibold
-            shadow-lg shadow-blue-600/20
-          "
-        >
-          Start Learning
-        </motion.button>
-
-        <motion.button
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-          onClick={() => navigate("/courses")}
-          className="
-            px-6 py-4
-            rounded-full
-            bg-white/5
-            border border-white/10
-            text-white
-            backdrop-blur-xl
-            hover:bg-white/10
-          "
-        >
-          Explore Courses
-        </motion.button>
+          <motion.button
+            whileHover={{ scale: 1.02, bg: "rgba(255, 255, 255, 0.06)" }}
+            whileTap={{ scale: 0.98 }}
+            onClick={() => navigate("/courses")}
+            className="w-full sm:w-auto px-8 py-4 rounded-xl bg-white/[0.02] border border-white/10 text-white font-semibold backdrop-blur-xl hover:border-white/25 transition-all duration-200"
+          >
+            Explore Courses
+          </motion.button>
+        </div>
 
       </motion.div>
-
     </section>
   );
 };

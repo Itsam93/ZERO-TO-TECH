@@ -7,7 +7,6 @@ const PaymentSuccess = () => {
   const navigate = useNavigate();
 
   const [status, setStatus] = useState("verifying"); 
-  // verifying | success | error
 
   useEffect(() => {
     const verifyPayment = async () => {
@@ -27,10 +26,8 @@ const PaymentSuccess = () => {
 
         setStatus("success");
 
-        // redirect after short delay
         setTimeout(() => {
           navigate("/resources"); 
-          // you can change to dashboard later
         }, 3000);
 
       } catch (err) {
@@ -47,7 +44,6 @@ const PaymentSuccess = () => {
 
       <div className="bg-white shadow-xl rounded-2xl p-8 text-center max-w-md w-full">
 
-        {/* ================= VERIFYING ================= */}
         {status === "verifying" && (
           <>
             <h2 className="text-xl font-semibold mb-2">
@@ -59,7 +55,6 @@ const PaymentSuccess = () => {
           </>
         )}
 
-        {/* ================= SUCCESS ================= */}
         {status === "success" && (
           <>
             <h2 className="text-2xl font-semibold text-green-600 mb-2">
@@ -83,7 +78,6 @@ const PaymentSuccess = () => {
           </>
         )}
 
-        {/* ================= ERROR ================= */}
         {status === "error" && (
           <>
             <h2 className="text-xl font-semibold text-red-600 mb-2">

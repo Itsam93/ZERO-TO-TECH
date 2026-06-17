@@ -7,7 +7,6 @@ import { Menu, X } from "lucide-react";
 const UserLayout = () => {
   const [isOpen, setIsOpen] = useState(false);
 
-  /* ================= LOCK SCROLL WHEN MOBILE SIDEBAR OPEN ================= */
   useEffect(() => {
     document.body.style.overflow = isOpen ? "hidden" : "auto";
     return () => (document.body.style.overflow = "auto");
@@ -16,12 +15,10 @@ const UserLayout = () => {
   return (
     <div className="min-h-screen flex bg-gray-50">
 
-      {/* ================= DESKTOP SIDEBAR ================= */}
       <div className="hidden md:block">
         <UserSidebar />
       </div>
 
-      {/* ================= MOBILE TRIGGER ================= */}
       <div className="md:hidden fixed top-4 left-4 z-50">
         <button
           onClick={() => setIsOpen(true)}
@@ -31,7 +28,6 @@ const UserLayout = () => {
         </button>
       </div>
 
-      {/* ================= MOBILE SIDEBAR ================= */}
       {isOpen && (
         <div className="fixed inset-0 z-50 flex">
 
@@ -62,15 +58,12 @@ const UserLayout = () => {
         </div>
       )}
 
-      {/* ================= MAIN AREA ================= */}
       <div className="flex-1 flex flex-col min-h-screen">
 
-        {/* ================= TOP NAVBAR ================= */}
         <div className="sticky top-0 z-40 bg-gray-50/80 backdrop-blur-md border-b">
           <UserNavbar />
         </div>
 
-        {/* ================= PAGE CONTENT ================= */}
         <main className="flex-1 p-4 md:p-8">
           <div className="max-w-7xl mx-auto space-y-6">
             <Outlet />

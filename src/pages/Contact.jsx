@@ -18,7 +18,6 @@ const Contact = () => {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
 
-  /* ================= FETCH COURSES FROM BACKEND ================= */
   useEffect(() => {
     const fetchCourses = async () => {
       try {
@@ -38,12 +37,10 @@ const Contact = () => {
     fetchCourses();
   }, []);
 
-  /* ================= HANDLE INPUT ================= */
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  /* ================= VALIDATION ================= */
   const validate = () => {
     const newErrors = {};
 
@@ -70,7 +67,6 @@ const Contact = () => {
     return newErrors;
   };
 
-  /* ================= SUBMIT ================= */
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -106,7 +102,6 @@ const Contact = () => {
     }
   };
 
-  /* ================= ANIMATION ================= */
   const containerVariants = {
     hidden: {},
     show: {

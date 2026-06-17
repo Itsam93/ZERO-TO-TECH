@@ -22,7 +22,6 @@ const Navbar = () => {
     { name: "Contact", path: "/contact" },
   ];
 
-  /* ================= SCROLL BEHAVIOR ================= */
   useEffect(() => {
     const handleScroll = () => {
       const currentY = window.scrollY;
@@ -44,7 +43,6 @@ const Navbar = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  /* ================= AUTH ACTIONS ================= */
   const handleLogout = () => {
     logout();
     setIsOpen(false);
@@ -53,7 +51,6 @@ const Navbar = () => {
 
   return (
     <>
-      {/* ================= NAVBAR ================= */}
       <nav
         className={`
           fixed w-full top-0 z-50
@@ -64,7 +61,6 @@ const Navbar = () => {
       >
         <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
 
-          {/* BRAND (UNCHANGED UI) */}
           <Link
             to="/"
             className="
@@ -81,70 +77,70 @@ const Navbar = () => {
           </Link>
 
           {/* DESKTOP NAV */}
-<div className="hidden md:flex items-center space-x-8">
+        <div className="hidden md:flex items-center space-x-8">
 
-  {navLinks.map((link) => {
-    const isActive = location.pathname === link.path;
+        {navLinks.map((link) => {
+          const isActive = location.pathname === link.path;
 
-    return (
-      <Link
-        key={link.path}
-        to={link.path}
-        className={`
-          relative py-1 transition
-          ${
-            isActive
-              ? "text-[var(--color-primary)] font-medium"
-              : "text-gray-700 hover:text-[var(--color-primary)]"
-          }
-        `}
-      >
-        {link.name}
+          return (
+            <Link
+              key={link.path}
+              to={link.path}
+              className={`
+                relative py-1 transition
+                ${
+                  isActive
+                    ? "text-[var(--color-primary)] font-medium"
+                    : "text-gray-700 hover:text-[var(--color-primary)]"
+                }
+              `}
+            >
+              {link.name}
 
-        {isActive && (
-          <span className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-[var(--color-primary)]" />
+              {isActive && (
+                <span className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-[var(--color-primary)]" />
+              )}
+            </Link>
+          );
+        })}
+
+        <div className="w-16" />
+
+        {/* AUTH SECTION */}
+        {!token ? (
+          <>
+            <Link
+              to="/login"
+              className="text-gray-700 hover:text-[var(--color-primary)]"
+            >
+              Login
+            </Link>
+
+            <Link
+              to="/register"
+              className="px-4 py-2 rounded-lg bg-[var(--color-primary)] text-white"
+            >
+              Register
+            </Link>
+          </>
+        ) : (
+          <>
+            <Link
+              to={user?.role === "admin" ? "/admin/dashboard" : "/user/dashboard"}
+              className="text-[var(--color-primary)] font-medium"
+            >
+              Dashboard
+            </Link>
+
+            <button
+              onClick={handleLogout}
+              className="text-red-500 hover:opacity-80"
+            >
+              Logout
+            </button>
+          </>
         )}
-      </Link>
-    );
-  })}
-
-  <div className="w-16" />
-
-  {/* AUTH SECTION */}
-  {!token ? (
-    <>
-      <Link
-        to="/login"
-        className="text-gray-700 hover:text-[var(--color-primary)]"
-      >
-        Login
-      </Link>
-
-      <Link
-        to="/register"
-        className="px-4 py-2 rounded-lg bg-[var(--color-primary)] text-white"
-      >
-        Register
-      </Link>
-    </>
-  ) : (
-    <>
-      <Link
-        to={user?.role === "admin" ? "/admin/dashboard" : "/user/dashboard"}
-        className="text-[var(--color-primary)] font-medium"
-      >
-        Dashboard
-      </Link>
-
-      <button
-        onClick={handleLogout}
-        className="text-red-500 hover:opacity-80"
-      >
-        Logout
-      </button>
-    </>
-  )}
-</div>
+      </div>
 
           {/* MOBILE BUTTON (UNCHANGED UI) */}
           <button
@@ -156,7 +152,7 @@ const Navbar = () => {
         </div>
       </nav>
 
-      {/* ================= MOBILE OVERLAY ================= */}
+      {/* MOBILE OVERLAY */}
       <div
         className={`
           fixed inset-0 z-50 md:hidden
@@ -170,7 +166,6 @@ const Navbar = () => {
           className="absolute inset-0 bg-black/40 backdrop-blur-sm"
         />
 
-        {/* BOTTOM SHEET (UNCHANGED UI) */}
         <div
           className={`
             absolute bottom-0 left-0 right-0
@@ -182,7 +177,6 @@ const Navbar = () => {
             ${isOpen ? "translate-y-0" : "translate-y-full"}
           `}
         >
-          {/* HANDLE */}
           <div className="w-12 h-1.5 bg-gray-300 rounded-full mx-auto mb-6" />
 
           {/* NAV LINKS */}
@@ -211,7 +205,6 @@ const Navbar = () => {
               );
             })}
 
-            {/* ================= AUTH MOBILE SECTION ================= */}
             {!token ? (
               <>
                 <Link
@@ -254,7 +247,6 @@ const Navbar = () => {
             )}
           </div>
 
-          {/* CTA SECTION (UNCHANGED UI) */}
           <div className="mt-6 pt-4 border-t border-gray-200">
             <Link
               to="/courses"

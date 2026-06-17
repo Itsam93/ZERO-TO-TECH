@@ -23,7 +23,6 @@ const PaymentModal = ({ course, amount, onClose }) => {
 
       const res = await API.post("/payments/initialize", payload);
 
-      // Redirect to Paystack checkout
       window.location.href = res.data.data.authorization_url;
     } catch (err) {
       console.error("Payment init error:", err);

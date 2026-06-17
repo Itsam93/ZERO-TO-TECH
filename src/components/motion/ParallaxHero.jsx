@@ -11,13 +11,10 @@ const ParallaxHero = ({
 }) => {
   const { scrollY } = useScroll();
 
-  // Background movement
   const y = useTransform(scrollY, [0, 800], [0, 220]);
 
-  // Slight opacity fade
   const opacity = useTransform(scrollY, [0, 500], [1, 0.4]);
 
-  // Scale depth
   const scale = useTransform(scrollY, [0, 500], [1, 1.08]);
 
   return (

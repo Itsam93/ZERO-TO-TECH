@@ -10,7 +10,6 @@ const UserNavbar = () => {
   const [openNotif, setOpenNotif] = useState(false);
   const [openUser, setOpenUser] = useState(false);
 
-  /* ================= MOCK NOTIFICATIONS ================= */
   const notifications = [
     {
       id: 1,
@@ -37,7 +36,6 @@ const UserNavbar = () => {
   return (
     <div className="w-full px-4 md:px-6 py-3 flex items-center justify-between">
 
-      {/* ================= LEFT: SEARCH ================= */}
       <div className="flex items-center gap-3 flex-1">
 
         <div className="hidden md:flex items-center gap-2 w-full max-w-md bg-white border rounded-xl px-3 py-2 shadow-sm">
@@ -51,10 +49,8 @@ const UserNavbar = () => {
 
       </div>
 
-      {/* ================= RIGHT ACTIONS ================= */}
       <div className="flex items-center gap-3 relative">
 
-        {/* ================= NOTIFICATIONS ================= */}
         <div className="relative">
 
           <button
@@ -100,7 +96,6 @@ const UserNavbar = () => {
 
         </div>
 
-        {/* ================= USER MENU ================= */}
         <div className="relative">
 
           <button

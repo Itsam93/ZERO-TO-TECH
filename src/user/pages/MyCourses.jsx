@@ -11,9 +11,8 @@ const MyCourses = () => {
   const [resources, setResources] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [tab, setTab] = useState("courses"); // courses | resources
+  const [tab, setTab] = useState("courses");
 
-  /* ================= FETCH DATA ================= */
   const fetchData = async () => {
     try {
       setLoading(true);
@@ -21,27 +20,20 @@ const MyCourses = () => {
 
       const [courseRes, resourceRes] = await Promise.allSettled([
         getMyCourses(token),
-        getMyResources?.(token), // safe fallback if not created yet
+        getMyResources?.(token), 
       ]);
 
-      /* COURSES */
       if (courseRes.status === "fulfilled") {
         setCourses(courseRes.value?.data?.data || []);
       }
 
-      /* RESOURCES */
       if (resourceRes?.status === "fulfilled") {
         setResources(resourceRes.value?.data?.data || []);
       }
-
     } catch (err) {
-      const message =
-        err?.response?.data?.message ||
-        "Failed to load learning data";
-
+      const message = err?.response?.data?.message || "Failed to load learning data";
       setError(message);
       toast.error(message);
-
     } finally {
       setLoading(false);
     }
@@ -51,7 +43,6 @@ const MyCourses = () => {
     if (token) fetchData();
   }, [token]);
 
-  /* ================= LOADING ================= */
   if (loading) {
     return (
       <div className="min-h-[60vh] flex items-center justify-center text-gray-500 animate-pulse">
@@ -60,7 +51,6 @@ const MyCourses = () => {
     );
   }
 
-  /* ================= ERROR ================= */
   if (error) {
     return (
       <div className="min-h-[60vh] flex items-center justify-center text-red-500">
@@ -71,21 +61,16 @@ const MyCourses = () => {
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-10 space-y-8">
-
-      {/* ================= HEADER ================= */}
       <div>
         <h1 className="text-2xl font-bold text-gray-800">
           My Learning Hub
         </h1>
-
         <p className="text-gray-500 mt-1">
           Welcome back, {user?.fullName || "Student"}
         </p>
       </div>
 
-      {/* ================= TABS ================= */}
       <div className="flex gap-2 border-b">
-
         <button
           onClick={() => setTab("courses")}
           className={`pb-2 px-3 text-sm font-medium transition ${
@@ -107,10 +92,8 @@ const MyCourses = () => {
         >
           Resources ({resources.length})
         </button>
-
       </div>
 
-      {/* ================= COURSES ================= */}
       {tab === "courses" && (
         <>
           {courses.length === 0 ? (
@@ -127,7 +110,6 @@ const MyCourses = () => {
             </div>
           ) : (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-
               {courses.map((course) => (
                 <div
                   key={course._id}
@@ -136,11 +118,9 @@ const MyCourses = () => {
                   <h3 className="font-semibold text-gray-800 mb-2">
                     {course.title}
                   </h3>
-
                   <p className="text-sm text-gray-500 mb-4 line-clamp-3">
                     {course.description}
                   </p>
-
                   <Link
                     to={`/courses/${course._id}`}
                     className="block text-center py-2 rounded-lg bg-[var(--color-secondary)] text-white"
@@ -149,13 +129,11 @@ const MyCourses = () => {
                   </Link>
                 </div>
               ))}
-
             </div>
           )}
         </>
       )}
 
-      {/* ================= RESOURCES ================= */}
       {tab === "resources" && (
         <>
           {resources.length === 0 ? (
@@ -164,7 +142,6 @@ const MyCourses = () => {
             </div>
           ) : (
             <div className="space-y-3">
-
               {resources.map((res) => (
                 <div
                   key={res._id}
@@ -174,12 +151,10 @@ const MyCourses = () => {
                     <h3 className="font-medium text-gray-800">
                       {res.title}
                     </h3>
-
                     <p className="text-xs text-gray-500">
                       {res.type || "Resource"}
                     </p>
                   </div>
-
                   <a
                     href={res.fileUrl}
                     target="_blank"
@@ -190,12 +165,10 @@ const MyCourses = () => {
                   </a>
                 </div>
               ))}
-
             </div>
           )}
         </>
       )}
-
     </div>
   );
 };

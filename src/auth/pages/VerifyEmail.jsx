@@ -12,14 +12,12 @@ const VerifyEmail = () => {
   const [status, setStatus] = useState("loading");
   // loading | success | error
 
-  /* ================= VERIFY EMAIL ================= */
   useEffect(() => {
     if (!token) {
       setStatus("error");
       return;
     }
 
-    // Prevent double execution (React StrictMode safe guard)
     if (hasRun.current) return;
     hasRun.current = true;
 
@@ -54,13 +52,11 @@ const VerifyEmail = () => {
     runVerification();
   }, [token, navigate]);
 
-  /* ================= UI ================= */
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-blue-50 px-4">
 
       <div className="w-full max-w-md bg-white p-8 rounded-2xl shadow-lg text-center">
 
-        {/* LOADING */}
         {status === "loading" && (
           <div className="flex flex-col items-center gap-4">
             <Loader2 className="animate-spin text-blue-600" size={40} />
@@ -75,7 +71,6 @@ const VerifyEmail = () => {
           </div>
         )}
 
-        {/* SUCCESS */}
         {status === "success" && (
           <div className="flex flex-col items-center gap-4">
             <CheckCircle2 size={50} className="text-green-600" />
@@ -90,7 +85,6 @@ const VerifyEmail = () => {
           </div>
         )}
 
-        {/* ERROR */}
         {status === "error" && (
           <div className="flex flex-col items-center gap-4">
             <XCircle size={50} className="text-red-500" />

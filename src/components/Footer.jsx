@@ -15,16 +15,13 @@ const Footer = () => {
   return (
     <footer className="relative bg-gray-950 text-white pt-24 pb-10 px-6 overflow-hidden">
 
-      {/* ================= BACKGROUND ================= */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute inset-0 bg-gradient-to-br from-[var(--color-primary)]/10 via-transparent to-[var(--color-secondary)]/10 blur-3xl" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.05),transparent_60%)]" />
       </div>
 
-      {/* ================= MAIN GRID ================= */}
       <div className="relative z-10 max-w-7xl mx-auto grid gap-14 md:grid-cols-4">
 
-        {/* ================= BRAND ================= */}
         <div className="md:col-span-1">
 
           <div className="flex items-center gap-4">
@@ -81,7 +78,6 @@ const Footer = () => {
           </div>
         </div>
 
-        {/* ================= NAVIGATION ================= */}
         <div>
           <h3 className="text-sm font-semibold text-white mb-5">
             Navigation
@@ -111,7 +107,6 @@ const Footer = () => {
           </ul>
         </div>
 
-        {/* ================= COURSES ================= */}
         <div>
           <h3 className="text-sm font-semibold text-white mb-5">
             Courses
@@ -134,7 +129,6 @@ const Footer = () => {
           </ul>
         </div>
 
-        {/* ================= CONTACT ================= */}
         <div>
           <h3 className="text-sm font-semibold text-white mb-5">
             Contact
@@ -161,7 +155,6 @@ const Footer = () => {
         </div>
       </div>
 
-      {/* ================= DIVIDER ================= */}
       <div className="relative z-10 mt-16 border-t border-white/10 pt-6 flex flex-col md:flex-row justify-between items-center text-gray-500 text-sm">
 
         <p>
@@ -177,7 +170,6 @@ const Footer = () => {
   );
 };
 
-/* ================= SOCIAL ICON ================= */
 const SocialIcon = ({ href, icon, accent, label }) => (
   <a
     href={href}
