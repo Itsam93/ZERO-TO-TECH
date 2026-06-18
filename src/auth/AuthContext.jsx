@@ -3,7 +3,7 @@ import { toast } from "react-hot-toast";
 
 const AuthContext = createContext();
 
-const INACTIVITY_TIMEOUT = 15 * 60 * 1000; 
+const INACTIVITY_TIMEOUT = 15 * 60 * 1000;
 
 export const AuthProvider = ({ children }) => {
   const [token, setToken] = useState(() => {
@@ -21,7 +21,7 @@ export const AuthProvider = ({ children }) => {
     }
   });
 
-  const [loading, setLoading] = useState(true);
+  const [initialized, setInitialized] = useState(false);
 
   const timeoutRef = useRef(null);
 
@@ -63,11 +63,6 @@ export const AuthProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    if (!token) {
-      setLoading(false);
-      return;
-    }
-
     const resetTimer = () => {
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
@@ -86,10 +81,14 @@ export const AuthProvider = ({ children }) => {
       "touchstart",
     ];
 
-    resetTimer();
-    events.forEach((event) => window.addEventListener(event, resetTimer));
+    if (token) {
+      resetTimer();
+      events.forEach((event) =>
+        window.addEventListener(event, resetTimer)
+      );
+    }
 
-    setLoading(false);
+    setInitialized(true);
 
     return () => {
       if (timeoutRef.current) {
@@ -111,7 +110,7 @@ export const AuthProvider = ({ children }) => {
         logout: () => logout(false),
         setUser,
         setToken,
-        loading,
+        initialized,
       }}
     >
       {children}
