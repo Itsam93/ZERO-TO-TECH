@@ -5,12 +5,15 @@ import { GoogleLogin } from "@react-oauth/google";
 import { useAuth } from "@/auth/AuthContext";
 import API from "@/services/api";
 import toast from "react-hot-toast";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Eye,
   EyeOff,
   User,
   Mail,
   Lock,
+  Loader2,
+  ShieldCheck,
 } from "lucide-react";
 
 const Register = () => {
@@ -84,32 +87,59 @@ const Register = () => {
   };
 
   const handleGoogleSuccess = async (credentialResponse) => {
-  try {
-    setLoading(true);
-
-    const res = await API.post("/auth/google", {
-      token: credentialResponse.credential,
-    });
-
-    if (res.data.success) {
-      login({
-        token: res.data.token,
-        user: res.data.user,
+    try {
+      setLoading(true);
+      const res = await API.post("/auth/google", {
+        token: credentialResponse.credential,
       });
 
-      toast.success(res.data.message);
+      if (res.data.success) {
+        login({
+          token: res.data.token,
+          user: res.data.data,
+        });
 
-      navigate("/user/dashboard");
+        toast.success(res.data.message);
+        navigate("/user/dashboard");
+      }
+    } catch (error) {
+      toast.error(error?.response?.data?.message || "Google authentication failed");
+    } finally {
+      setLoading(false);
     }
-  } catch (error) {
-    toast.error("Google authentication failed");
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-white to-blue-50 px-4 py-10 relative overflow-hidden">
+      
+      <AnimatePresence>
+        {loading && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-md flex flex-col items-center justify-center text-white"
+          >
+            <motion.div 
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ delay: 0.1, type: "spring", stiffness: 100 }}
+              className="flex flex-col items-center max-w-sm text-center px-6"
+            >
+              <div className="relative mb-6 flex items-center justify-center">
+                <div className="absolute w-20 h-20 bg-blue-500/30 rounded-full blur-xl animate-pulse" />
+                <Loader2 className="text-blue-500 animate-spin relative z-10" size={56} strokeWidth={1.5} />
+                <ShieldCheck className="text-white absolute scale-90" size={24} />
+              </div>
+              <h3 className="text-xl font-bold tracking-tight text-slate-100 mb-2">Please wait!</h3>
+              <p className="text-sm text-slate-400 leading-relaxed font-medium">
+                Creating your account and connecting to the dashboard...
+              </p>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <div className="absolute top-[-120px] right-[-120px] w-[300px] h-[300px] bg-blue-500/10 blur-3xl rounded-full" />
       <div className="absolute bottom-[-140px] left-[-140px] w-[320px] h-[320px] bg-cyan-400/10 blur-3xl rounded-full" />
 
@@ -135,7 +165,8 @@ const Register = () => {
               placeholder="Full Name"
               value={form.fullName}
               onChange={handleChange}
-              className="w-full h-12 pl-11 border rounded-2xl bg-gray-50/70 focus:ring-4 focus:ring-blue-100 focus:border-blue-500 outline-none"
+              disabled={loading}
+              className="w-full h-12 pl-11 border rounded-2xl bg-gray-50/70 focus:ring-4 focus:ring-blue-100 focus:border-blue-500 outline-none disabled:opacity-60"
             />
           </div>
 
@@ -147,7 +178,8 @@ const Register = () => {
               placeholder="Email"
               value={form.email}
               onChange={handleChange}
-              className="w-full h-12 pl-11 border rounded-2xl bg-gray-50/70 focus:ring-4 focus:ring-blue-100 focus:border-blue-500 outline-none"
+              disabled={loading}
+              className="w-full h-12 pl-11 border rounded-2xl bg-gray-50/70 focus:ring-4 focus:ring-blue-100 focus:border-blue-500 outline-none disabled:opacity-60"
             />
           </div>
 
@@ -159,10 +191,12 @@ const Register = () => {
               placeholder="Password"
               value={form.password}
               onChange={handleChange}
-              className="w-full h-12 pl-11 pr-12 border rounded-2xl bg-gray-50/70 focus:ring-4 focus:ring-blue-100 focus:border-blue-500 outline-none"
+              disabled={loading}
+              className="w-full h-12 pl-11 pr-12 border rounded-2xl bg-gray-50/70 focus:ring-4 focus:ring-blue-100 focus:border-blue-500 outline-none disabled:opacity-60"
             />
             <button
               type="button"
+              disabled={loading}
               onClick={() => setShowPassword(!showPassword)}
               className="absolute right-4 top-3 text-gray-400"
             >
@@ -176,6 +210,7 @@ const Register = () => {
               name="agreedToTerms"
               checked={form.agreedToTerms}
               onChange={handleChange}
+              disabled={loading}
               className="mt-1"
             />
             <span>
@@ -188,12 +223,13 @@ const Register = () => {
           <button
             type="submit"
             disabled={loading || !form.agreedToTerms}
-            className={`w-full h-12 rounded-2xl text-white font-semibold transition ${
+            className={`w-full h-12 rounded-2xl text-white font-semibold transition flex items-center justify-center gap-2 ${
               loading || !form.agreedToTerms
                 ? "bg-blue-300 cursor-not-allowed"
                 : "bg-gradient-to-r from-blue-600 to-cyan-500 hover:shadow-xl"
             }`}
           >
+            {loading ? <Loader2 size={18} className="animate-spin" /> : null}
             {loading ? "Creating account..." : "Create Account"}
           </button>
         </form>
