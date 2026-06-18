@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { registerUser } from "@/services/userApi";
 import { GoogleLogin } from "@react-oauth/google";
+import { useAuth } from "@/auth/AuthContext";
 import API from "@/services/api";
 import toast from "react-hot-toast";
 import {
@@ -14,6 +15,7 @@ import {
 
 const Register = () => {
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const [form, setForm] = useState({
     fullName: "",
