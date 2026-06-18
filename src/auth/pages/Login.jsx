@@ -85,10 +85,15 @@ const Login = () => {
       setLoading(true);
 
       const res = await loginUser(form);
-      const { data } = res.data;
+
+      const { token, data } = res.data;
+
+      if (!token || !data) {
+        throw new Error("Invalid login response from server");
+      }
 
       login({
-        token: data.token,
+        token,
         user: {
           _id: data._id,
           fullName: data.fullName,
@@ -113,7 +118,8 @@ const Login = () => {
         "Login failed. Please try again.";
 
       toast.error(message);
-      setLoading(false); // Only turn off loading if the request fails
+    } finally {
+      setLoading(false);
     }
   };
 

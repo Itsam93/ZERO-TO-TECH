@@ -97,12 +97,11 @@ const Register = () => {
         user: res.data.user,
       });
 
-      toast.success("Successfully authenticated with Google");
+      toast.success(res.data.message);
 
       navigate("/user/dashboard");
     }
   } catch (error) {
-    console.error(error);
     toast.error("Google authentication failed");
   } finally {
     setLoading(false);
