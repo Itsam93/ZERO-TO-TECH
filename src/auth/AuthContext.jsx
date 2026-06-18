@@ -6,24 +6,31 @@ const AuthContext = createContext();
 const INACTIVITY_TIMEOUT = 15 * 60 * 1000; 
 
 export const AuthProvider = ({ children }) => {
-  const [token, setToken] = useState(
-    localStorage.getItem("userToken") || null
-  );
+  const [token, setToken] = useState(() => {
+    return localStorage.getItem("userToken") || null;
+  });
 
   const [user, setUser] = useState(() => {
     try {
       const storedUser = localStorage.getItem("user");
       return storedUser ? JSON.parse(storedUser) : null;
-    } catch (error) {
-      console.error("Failed to parse stored user:", error);
+    } catch (err) {
+      console.error("Invalid stored user JSON:", err);
       localStorage.removeItem("user");
       return null;
     }
   });
 
+  const [loading, setLoading] = useState(true);
+
   const timeoutRef = useRef(null);
 
   const login = ({ token, user }) => {
+    if (!token || !user) {
+      console.error("Login failed: token or user missing", { token, user });
+      return;
+    }
+
     localStorage.setItem("userToken", token);
     localStorage.setItem("user", JSON.stringify(user));
 
@@ -57,9 +64,7 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     if (!token) {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-      }
+      setLoading(false);
       return;
     }
 
@@ -73,7 +78,7 @@ export const AuthProvider = ({ children }) => {
       }, INACTIVITY_TIMEOUT);
     };
 
-    const activityEvents = [
+    const events = [
       "mousedown",
       "mousemove",
       "keypress",
@@ -82,17 +87,16 @@ export const AuthProvider = ({ children }) => {
     ];
 
     resetTimer();
+    events.forEach((event) => window.addEventListener(event, resetTimer));
 
-    activityEvents.forEach((event) =>
-      window.addEventListener(event, resetTimer)
-    );
+    setLoading(false);
 
     return () => {
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
       }
 
-      activityEvents.forEach((event) =>
+      events.forEach((event) =>
         window.removeEventListener(event, resetTimer)
       );
     };
@@ -107,6 +111,7 @@ export const AuthProvider = ({ children }) => {
         logout: () => logout(false),
         setUser,
         setToken,
+        loading,
       }}
     >
       {children}

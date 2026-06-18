@@ -3,7 +3,7 @@ import { useAuth } from "@/auth/AuthContext";
 
 const ProtectedRoute = ({
   children,
-  role, 
+  role,
   redirectTo = "/login",
 }) => {
   const { token, user, loading } = useAuth();
@@ -27,13 +27,17 @@ const ProtectedRoute = ({
     );
   }
 
-  if (role && user.role !== role) {
-    return (
-      <Navigate
-        to="/unauthorized"
-        replace
-      />
-    );
+  if (role) {
+    const userRole = user?.role;
+
+    if (!userRole || userRole !== role) {
+      return (
+        <Navigate
+          to="/unauthorized"
+          replace
+        />
+      );
+    }
   }
 
   return children;
