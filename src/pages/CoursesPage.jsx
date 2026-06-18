@@ -5,7 +5,8 @@ import PUBLIC_API from "@/services/publicApi";
 import { EnrollButton } from "@/components/buttons/EnrollButton";
 import AnimatedSection from "@/components/AnimatedSection";
 import { RegistrationModal } from "@/components/RegistrationModal"; 
-import { motion } from "framer-motion";
+import PaymentModal from "@/components/PaymentModal";
+import { motion, AnimatePresence } from "framer-motion";
 import { Search, BookOpen, Code, Megaphone, Palette, Cpu, Layers } from "lucide-react";
 
 const categories = [
@@ -55,6 +56,8 @@ const CoursesPage = () => {
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [showRegisterModal, setShowRegisterModal] = useState(false);
+  const [isPayModalOpen, setIsPayModalOpen] = useState(false);
+  const [activeCourseForPay, setActiveCourseForPay] = useState(null);
 
   useEffect(() => {
     const fetchCourses = async () => {
@@ -83,9 +86,10 @@ const CoursesPage = () => {
     return matchesCategory && matchesSearch;
   });
 
-  const handleEnrollClick = (courseId) => {
+  const handleEnrollClick = (course) => {
     if (user) {
-      navigate(`/checkout?id=${courseId}`);
+      setActiveCourseForPay(course);
+      setIsPayModalOpen(true);
     } else {
       setShowRegisterModal(true);
     }
@@ -274,7 +278,7 @@ const CoursesPage = () => {
                       </div>
 
                       <EnrollButton 
-                        onClick={() => handleEnrollClick(currentId)}
+                        onClick={() => handleEnrollClick(course)}
                         className="w-full mt-auto bg-slate-900 hover:bg-blue-600 text-white rounded-xl py-3 text-sm font-semibold shadow-sm transition-all duration-200" 
                       />
                     </div>
@@ -298,6 +302,21 @@ const CoursesPage = () => {
         onClose={() => setShowRegisterModal(false)} 
         registerUrl="/register"
       />
+
+      <AnimatePresence>
+        {isPayModalOpen && activeCourseForPay && (
+          <PaymentModal
+            itemType="course"
+            itemId={activeCourseForPay._id || activeCourseForPay.id}
+            title={activeCourseForPay.title}
+            amount={activeCourseForPay.price} // Ensure your API returns 'price'
+            onClose={() => {
+              setIsPayModalOpen(false);
+              setActiveCourseForPay(null);
+            }}
+          />
+        )}
+      </AnimatePresence>
 
     </main>
   );
