@@ -6,13 +6,27 @@ const AuthContext = createContext();
 const INACTIVITY_TIMEOUT = 15 * 60 * 1000; 
 
 export const AuthProvider = ({ children }) => {
-  const [token, setToken] = useState(localStorage.getItem("userToken"));
-  const [user, setUser] = useState(JSON.parse(localStorage.getItem("user")) || null);
+  const [token, setToken] = useState(
+    localStorage.getItem("userToken") || null
+  );
+
+  const [user, setUser] = useState(() => {
+    try {
+      const storedUser = localStorage.getItem("user");
+      return storedUser ? JSON.parse(storedUser) : null;
+    } catch (error) {
+      console.error("Failed to parse stored user:", error);
+      localStorage.removeItem("user");
+      return null;
+    }
+  });
+
   const timeoutRef = useRef(null);
 
   const login = ({ token, user }) => {
     localStorage.setItem("userToken", token);
     localStorage.setItem("user", JSON.stringify(user));
+
     setToken(token);
     setUser(user);
   };
@@ -20,10 +34,15 @@ export const AuthProvider = ({ children }) => {
   const logout = (isAuto = false) => {
     localStorage.removeItem("userToken");
     localStorage.removeItem("user");
+
     setToken(null);
     setUser(null);
 
-    if (isAuto === true) {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+
+    if (isAuto) {
       toast("Session expired due to inactivity.", {
         icon: "🔒",
         style: {
@@ -38,26 +57,44 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     if (!token) {
-      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
       return;
     }
 
     const resetTimer = () => {
-      if (timeoutRef.current) clearTimeout(timeoutRef.current);
-      
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+
       timeoutRef.current = setTimeout(() => {
-        logout(true); 
+        logout(true);
       }, INACTIVITY_TIMEOUT);
     };
 
-    const activityEvents = ["mousedown", "mousemove", "keypress", "scroll", "touchstart"];
+    const activityEvents = [
+      "mousedown",
+      "mousemove",
+      "keypress",
+      "scroll",
+      "touchstart",
+    ];
 
     resetTimer();
-    activityEvents.forEach((event) => window.addEventListener(event, resetTimer));
+
+    activityEvents.forEach((event) =>
+      window.addEventListener(event, resetTimer)
+    );
 
     return () => {
-      if (timeoutRef.current) clearTimeout(timeoutRef.current);
-      activityEvents.forEach((event) => window.removeEventListener(event, resetTimer));
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+
+      activityEvents.forEach((event) =>
+        window.removeEventListener(event, resetTimer)
+      );
     };
   }, [token]);
 
@@ -67,7 +104,9 @@ export const AuthProvider = ({ children }) => {
         token,
         user,
         login,
-        logout: () => logout(false), 
+        logout: () => logout(false),
+        setUser,
+        setToken,
       }}
     >
       {children}

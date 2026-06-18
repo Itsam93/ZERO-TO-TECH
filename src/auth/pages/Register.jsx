@@ -82,19 +82,30 @@ const Register = () => {
   };
 
   const handleGoogleSuccess = async (credentialResponse) => {
-    try {
-      setLoading(true);
-      const res = await API.post("/auth/google", { 
-        token: credentialResponse.credential 
+  try {
+    setLoading(true);
+
+    const res = await API.post("/auth/google", {
+      token: credentialResponse.credential,
+    });
+
+    if (res.data.success) {
+      login({
+        token: res.data.token,
+        user: res.data.user,
       });
+
       toast.success("Successfully authenticated with Google");
-      navigate("/dashboard");
-    } catch (error) {
-      toast.error("Google authentication failed");
-    } finally {
-      setLoading(false);
+
+      navigate("/user/dashboard");
     }
-  };
+  } catch (error) {
+    console.error(error);
+    toast.error("Google authentication failed");
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-white to-blue-50 px-4 py-10 relative overflow-hidden">
